@@ -1,0 +1,36 @@
+{
+  "name": "adeptask",
+  "version": "1.0.0",
+  "description": "Async DEPendency Task",
+  "files": [
+    "src",
+    "bundle.js"
+  ],
+  "exports": {
+    "import": "./src/Task.js",
+    "require": "./bundle.js"
+  },
+  "scripts": {
+    "devtools": "npm i --no-save rollup mocha npm-watch",
+    "watch": "npm-watch",
+    "test": "mocha",
+    "build": "rollup src/Task.js --file bundle.js --format umd --name adeptask",
+    "prepublish": "npm run test && npm run build"
+  },
+  "watch": {
+    "build": "src/*.js"
+  },
+  "keywords": [
+    "async",
+    "dependency",
+    "task",
+    "callable"
+  ],
+  "author": "amekusa (https://amekusa.com)",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "conso1e": "^1.1.1",
+    "flex-params": "^2.2.0"
+  }
+}
