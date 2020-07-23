@@ -31,6 +31,6 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "conso1e": "^1.1.1",
-    "flex-params": "^2.2.0"
+    "flex-params": "^2.3.1"
   }
 }
