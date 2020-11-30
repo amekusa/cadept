@@ -1,5 +1,6 @@
 /**
  * Extensible Function
+ * @ignore
  */
 class Callable extends Function {
 	constructor() {
