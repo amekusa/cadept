@@ -1,7 +1,7 @@
 {
-  "name": "adeptask",
+  "name": "cadept",
   "version": "1.0.0",
-  "description": "Async DEPendency Task",
+  "description": "Callable Async DEPendency Task",
   "files": [
     "src",
     "bundle.js"
