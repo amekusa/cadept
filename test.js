@@ -101,6 +101,14 @@ const { log, logger } = setupLogger();
 const Task = require('./bundle');
 const TaskManager = Task.Manager;
 
+function setup() {
+	let t = new Task(`test`, r => r(`done.`));
+	let t2 = new Task(`test2`, r => r(`test2:done.`));
+	let t3 = new Task(`test3`, r => r(`test3:done.`));
+	let manager = new TaskManager();
+	return { t, t2, t3, manager };
+}
+
 beforeEach(() => {
 	log.clear();
 	Task.reset();
@@ -111,12 +119,21 @@ beforeEach(() => {
 	});
 });
 
-describe('Task', () => {
-	describe('members', () => {
+describe(`Task`, () => {
+	describe('type check', () => {
+		let t = new Task('test', resolve => resolve());
+		it(`typeof task == 'function'`, () => {
+			assert.equal(typeof t, 'function');
+		});
+		it(`task instanceof Task`, () => {
+			assert.ok(t instanceof Task);
+		});
+	});
+	describe(`members`, () => {
 		let dep = new Task('dep', resolve => { resolve('dep:done.') });
 		let a = new Task('A', resolve => { resolve('a:done.') }, [dep]);
 		let b = new Task('B', resolve => { resolve('b:done.') });
-		let c = new Task('C', resolve => { setTimeout(resolve, 3000) }); c();
+		let c = new Task('C', resolve => { setTimeout(resolve, 1500) }); c();
 		let d = new Task(resolve => { resolve('d:done.') }); d();
 		let e = new Task('E', resolve => { resolve('e:done.') }); e.register();
 		compareMembers({a, b, c, d, e}, {
@@ -127,15 +144,74 @@ describe('Task', () => {
 			isIdle: { a:true, b:true, c:false, d:false },
 			isDone: { a:false, c:false, d:true },
 			isBusy: { a:false, c:true, d:false },
+			isRegistered: { a:false, e:true },
 			resolved: { a:null, d:'d:done.' },
 			manager: { a:null, e:TaskManager.global() }
 		});
 	});
-	describe('options', () => {
-		it('colorSupport', () => {
+	describe(`methods`, () => {
+		beforeEach(() => {
+			TaskManager.global().clear();
+		});
+		it(`register`, () => {
+			var { t } = setup();
+			assert.strictEqual(t.register(), t);
+		});
+		it(`register(manager)`, () => {
+			var { t, manager } = setup();
+			t.register(manager);
+			assert.strictEqual(t.manager, manager);
+		});
+		it(`deregister`, () => {
+			var { t } = setup();
+			let manager = TaskManager.global();
+			t.register();
+			assert.ok(t.isRegistered);
+			assert.ok(manager.has(t));
+			t.deregister();
+			assert.ok(!t.isRegistered);
+			assert.ok(!manager.has(t));
+		});
+		it(`depend`, () => {
+			var { t, t2, t3 } = setup();
+			t.depend(t2, t3);
+			assert.ok(t.hasDep);
+			t().then(resolved => {
+				assert.ok(t.isDone);
+				assert.ok(t2.isDone);
+				assert.ok(t3.isDone);
+				assert.equal(t.resolved, resolved);
+				assert.equal(t.resolved, `done.`);
+				assert.equal(t2.resolved, `test2:done.`);
+				assert.equal(t3.resolved, `test3:done.`);
+			});
+		});
+		it(`depend(string)`, () => {
+			var { t, t2, t3 } = setup();
+			t.depend(`test2`, `test3`);
+			t.register();
+			t2.register();
+			t3.register();
+			t().then(resolved => {
+				assert.ok(t.isDone);
+				assert.ok(t2.isDone);
+				assert.ok(t3.isDone);
+				assert.equal(t.resolved, resolved);
+				assert.equal(t.resolved, `done.`);
+				assert.equal(t2.resolved, `test2:done.`);
+				assert.equal(t3.resolved, `test3:done.`);
+			});
+		});
+	});
+	describe(`options`, () => {
+		it(`colorSupport`, () => {
 			let t = new Task('test', resolve => { resolve() });
-			t();
-			log.assertLines(`[test] running...`, `[test] resolved.`);
+			Task.option('colorSupport', 0);
+			t.log(`foo`);
+			Task.option('colorSupport', 1);
+			t.log(`foo`);
+			assert.equal(log.lines[0], `[test] foo`);
+			assert.notEqual(log.lines[1], `[test] foo`);
 		});
 	});
 });
