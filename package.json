@@ -4,7 +4,8 @@
   "description": "Callable Async DEPendency Task",
   "files": [
     "src",
-    "bundle.js"
+    "bundle.js",
+    "bundle.js.map"
   ],
   "exports": {
     "import": "./src/Task.js",
