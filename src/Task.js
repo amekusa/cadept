@@ -87,7 +87,6 @@ const local = {
  * var taskB = new Task('task B', () => { ... });
  * var taskC = new Task('task C', () => { ... });
  * taskC.depend(taskA, taskB);       // add taskA and taskB as dependencies
- * taskC.depend('task A', 'task B'); // or adding by task names
  * taskC();
  */
 class Task extends Callable {
@@ -145,7 +144,7 @@ class Task extends Callable {
 	 * @readonly
 	 */
 	get hasDep() {
-		return (this._deps && this._deps.length);
+		return !!(this._deps && this._deps.length);
 	}
 	/**
 	 * Whether this task is idle
@@ -170,6 +169,14 @@ class Task extends Callable {
 	 */
 	get isBusy() {
 		return this._state == local.states.BUSY;
+	}
+	/**
+	 * Whether this task is registered for a {@link TaskManager}
+	 * @type {boolean}
+	 * @readonly
+	 */
+	get isRegistered() {
+		return !!this._manager;
 	}
 	/**
 	 * The resolved value
@@ -207,7 +214,6 @@ class Task extends Callable {
 		return this._logLevel == local.logLevels.DEFAULT ? local.options.defaultLogLevel : this._logLevel;
 	}
 	set console(x) {
-		InvalidType.check(x, 'object');
 		this._console = x instanceof conso1e ? x : conso1e.wrap(x);
 	}
 	/**
@@ -223,6 +229,18 @@ class Task extends Callable {
 	}
 	_register(manager) {
 		this._manager = manager;
+	}
+	/**
+	 * Deregisters this task from a {@link TaskManager}.
+	 * @return {Task} this object
+	 */
+	deregister() {
+		if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
+		this._manager.remove(this.displayName);
+		return this;
+	}
+	_deregister() {
+		this._manager = null;
 	}
 	/**
 	 * Sets a log threshold.
@@ -298,20 +316,15 @@ class Task extends Callable {
 			let promises = [];
 			for (let dep of this._deps) {
 				let promise = null;
-				switch (typeof dep) {
-				case 'object':
-					if (dep instanceof Task) promise = dep();
-					else if (dep instanceof Promise) promise = dep;
-					break;
-				case 'function':
-					promise = new Promise(dep);
-					break;
-				case 'string':
-					dep = this.manager.get(dep);
-					if (!dep) throw new Exception(`no such task as '${dep}'`);
-					promise = dep();
-					break;
-				}
+				if (dep instanceof Task) promise = dep();
+				else if (dep instanceof Promise) promise = dep;
+				else if (typeof dep == 'function') promise = new Promise(dep);
+				else if (typeof dep == 'string') {
+					if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
+					let task = this._manager.get(dep);
+					if (!task) throw new Exception(`no such task as '${dep}'`);
+					promise = task();
+				} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
 				promises.push(promise);
 			}
 			this._promise = Promise.all(promises).then(() => {

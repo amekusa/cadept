@@ -1,6 +1,6 @@
 import Task from './Task';
 
-const { InvalidType } = require('generic-exceptions');
+const { Exception, InvalidType } = require('generic-exceptions');
 const flexParams = require('flex-params');
 
 let instance = null;
@@ -11,6 +11,15 @@ let instance = null;
 class TaskManager {
 	constructor() {
 		this._tasks = {};
+	}
+	/**
+	 * Removes all the tasks from this manager.
+	 * @return {TaskManager} this object
+	 */
+	clear() {
+		for (let i in this._tasks) this._tasks[i]._deregister();
+		this._tasks = {};
+		return this;
 	}
 	/**
 	 * Creates a new task and registers it for this manager.
@@ -37,7 +46,8 @@ class TaskManager {
 	add(task) {
 		InvalidType.check(task, Task);
 		if (!task.hasName) throw new Exception(`anonymous task can't be added to a manager`);
-		if (task.manager || this.has(task)) throw new Exception(`the task ${task.label} has already regitered`);
+		if (task.manager) throw new Exception(`the task ${task.label} has already regitered`);
+		if (this.has(task.displayName)) throw new Exception(`the task name '${task.displayName}' conflicts`);
 		this._add(task);
 		return this;
 	}
@@ -46,12 +56,24 @@ class TaskManager {
 		task._register(this);
 	}
 	/**
+	 * Deregisters a task from this manager.
+	 * @param {string} taskName Name of the task to remove
+	 * @return {Task} the task that is removed
+	 */
+	remove(taskName) {
+		let task = this.get(taskName);
+		if (!task) throw new Exception(`no such task as '${taskName}'`);
+		delete this._tasks[taskName];
+		task._deregister();
+		return task;
+	}
+	/**
 	 * Returns a task specified by name
 	 * @param {string} taskName Name of the task to get
 	 * @return {Task|null} the task, or `null` if it wasn't found
 	 */
 	get(taskName) {
-		return (taskName in this._tasks) ? this._tasks[taskName] : null;
+		return (taskName in this._tasks ? this._tasks[taskName] : null);
 	}
 	/**
 	 * Returns whether this manager owns the specified task.
@@ -59,8 +81,9 @@ class TaskManager {
 	 * @return {boolean}
 	 */
 	has(task) {
-		let name = (task instanceof Task) ? task.displayName : task;
-		return (name in this._tasks);
+		if (task instanceof Task) return (task.displayName in this._tasks && task === this._tasks[task.displayName]);
+		if (typeof task == 'string') return (task in this._tasks);
+		throw InvalidType.failed(task, Task, 'string');
 	}
 	/**
 	 * Returns a singleton instance of {@link TaskManager}.
