@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "14"
+script:
+  - npm run setup
+  - npm run build
+  - npm run test
+  - npm run codecov
+branches:
+  only:
+    - master
