@@ -35,7 +35,7 @@
         "version": "3.7.2"
       },
       "rollup": {
-        "version": "2.23.0"
+        "version": "2.23.3"
       },
       "mocha": {
         "version": "8.1.1"
