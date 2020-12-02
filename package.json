@@ -26,19 +26,19 @@
   "_setup": {
     "deps": {
       "nyc": {
-        "version": "15.1.0"
+        "version": "^15.1.0"
       },
       "npm-watch": {
-        "version": "0.6.0"
+        "version": "^0.7.0"
       },
       "codecov": {
-        "version": "3.7.2"
+        "version": "^3.8.1"
       },
       "rollup": {
-        "version": "2.23.0"
+        "version": "^2.34.0"
       },
       "mocha": {
-        "version": "8.1.1"
+        "version": "^8.2.1"
       }
     }
   },
