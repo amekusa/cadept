@@ -1963,6 +1963,7 @@
   				suggests.children[select].classList.remove('selected'); // unselect the previous
   				suggests.children[selectNew].classList.add('selected'); // select the new
   				suggests.setAttribute('data-select', selectNew);
+  				ev.preventDefault();
   			});
 
   			// hint

@@ -24,7 +24,9 @@
         "author": "Satoshi Soma (amekusa.com)"
       },
       "branding": {
-        "title": "CADEPT"
+        "title": "CADEPT",
+        "link": "https://github.com/amekusa/cadept",
+        "icon": "github"
       },
       "footer": {
         "copyright": "&copy; 2020 Satoshi Soma (<a href=\"https://amekusa.com\">amekusa.com</a>)"

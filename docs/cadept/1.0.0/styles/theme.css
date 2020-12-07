@@ -404,6 +404,13 @@ pre.prettyprint ol.linenums > li > code::after {
   transform: translate(-1px, -1px) rotateZ(-45deg);
   background-color: #5e5f91;
 }
+.icon.feather {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
 h2,
 h3,
 h4,
@@ -427,29 +434,48 @@ h6 {
   box-sizing: border-box;
   width: 100%;
   height: 3rem;
+  color: white;
+}
+.masthead a {
+  color: inherit;
+  text-decoration: none;
 }
 .masthead .branding {
   flex-shrink: 0;
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   box-sizing: border-box;
   width: 16rem;
   height: 100%;
+  padding-left: 3rem;
+  padding-right: 1.5rem;
   background-color: rgba(0, 0, 0, 0.7);
   font-size: 1.25rem;
   line-height: 1;
-  font-weight: bold;
+  font-weight: normal;
+  text-transform: uppercase;
 }
 .masthead .branding a {
-  color: white;
+  transition: color 0.25s ease-out;
 }
 .masthead .branding a:hover {
-  text-decoration: none;
+  color: lightseagreen;
 }
-.masthead .branding img {
-  display: block;
-  width: 100%;
+.masthead .branding .link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3rem;
+  height: 100%;
+}
+.masthead .branding .link svg.icon {
+  width: 1.25em;
+  height: 1.25em;
 }
 .masthead .topbar {
   flex-grow: 1;
@@ -461,7 +487,6 @@ h6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   background-color: rgba(0, 0, 0, 0.5);
-  color: white;
 }
 .masthead .topbar .page-title {
   margin: 0;
@@ -469,10 +494,6 @@ h6 {
   line-height: 1;
   font-weight: normal;
   text-shadow: 0 0.05em 0.25em #000000;
-}
-.masthead .topbar .page-title a {
-  color: inherit;
-  text-decoration: none;
 }
 main {
   position: relative;
@@ -1025,7 +1046,7 @@ input#docolatte-shows-sidebar,
     overflow: auto;
   }
   .not-for-mobile {
-    display: none;
+    display: none !important;
   }
   .masthead {
     display: block;
@@ -1034,13 +1055,31 @@ input#docolatte-shows-sidebar,
     height: auto;
   }
   .masthead .branding {
+    justify-content: flex-start;
     width: auto;
     height: 4.854rem;
+    padding-left: 1.5rem;
+    padding-right: 6.354rem;
     font-size: 1.5rem;
+  }
+  .masthead .branding .link {
+    left: auto;
+    right: 0;
+    width: 4.854rem;
+  }
+  .masthead .branding .link::before {
+    content: "";
+    position: absolute;
+    top: 0.75rem;
+    left: -1px;
+    display: block;
+    width: 0;
+    height: 3.354rem;
+    border-left: 1px dashed white;
+    opacity: 0.38;
   }
   .masthead .topbar {
     height: 3rem;
-    justify-content: center;
   }
   main {
     min-width: 320px;
