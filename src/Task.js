@@ -194,7 +194,7 @@ class Task extends Callable {
 	 */
 	get resolved() {
 		if (!this.isDone) {
-			this.warn(`not resolved yet`);
+			this.warn(`Not resolved yet`);
 			return null;
 		}
 		return this._resolved;
