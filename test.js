@@ -189,6 +189,36 @@ describe(`Task`, () => {
 				done();
 			}).catch(done);
 		});
+		it(`__call :: this`, done => {
+			let t = new Task('test', function (resolve) {
+				assert.strictEqual(t, this);
+				resolve();
+			});
+			t().then(done).catch(done);
+		});
+		it(`__call :: no params`, done => {
+			let t = new Task('test', () => {
+				return 'RESOLVED';
+			});
+			t().then(r => {
+				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.ok(t.isDone);
+				done();
+			}).catch(done);
+		});
+		it(`__call :: no params :: error`, done => {
+			let t = new Task('test', () => {
+				throw 'ERROR';
+			});
+			t().then(r => {
+				assert.fail(`shouldn't reach here`);
+				done();
+			}).catch(err => {
+				assert.equal(err, 'ERROR');
+				assert.ok(t.isFailed);
+				done();
+			}).catch(done);
+		});
 		it(`register`, () => {
 			let { t } = setup();
 			assert.strictEqual(t.register(), t);
