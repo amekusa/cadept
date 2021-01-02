@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    
+    <title>CADEPT</title>
+    
+    <meta name="description" content="Callable Async DEpendency Task">
+    
+    <meta name="keywords" content="task, asynchronous, dependency, library, nodeJs, npm">
+    
+    <meta name="author" content="Satoshi Soma (amekusa.com)">
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/main.js"></script>
+    
+    <link type="text/css" rel="stylesheet" href="modules/color-themes-for-google-code-prettify/dist/themes/tomorrow-night-eighties.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+    <link type="text/css" rel="stylesheet" href="styles/theme.css">
+    
+</head>
+<body>
+<div class="page">
+
+    <header class="masthead">
+        <div class="branding">
+            
+            <a class="link" href="https://github.com/amekusa/cadept">
+                <svg class="icon feather"><use xlink:href="modules/feather-icons/dist/feather-sprite.svg#github"/></svg>
+            </a>
+            
+            <a class="title" href="index.html">CADEPT</a>
+        </div>
+        <div class="topbar">
+            <h1 class="page-title">
+                <a href="#">Home</a>
+            </h1>
+        </div>
+    </header>
+
+    <main class="has-footer">
+        
+
+
+
+    
+
+
+    <h3>cadept 1.1.0</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <article class="readme">
+        <p><strong>CADEPT</strong> ( <strong>C</strong>allable <strong>A</strong>sync <strong>DEP</strong>endency <strong>T</strong>ask ) is an asynchronous task class with dependency management features.</p>
+<p><a href="https://travis-ci.com/amekusa/cadept"><img src="https://travis-ci.com/amekusa/cadept.svg?branch=master" alt="Build Status"></a> <a href="https://codecov.io/gh/amekusa/cadept"><img src="https://codecov.io/gh/amekusa/cadept/branch/master/graph/badge.svg" alt="codecov"></a> <a href="https://www.npmjs.com/package/cadept"><img src="https://img.shields.io/badge/dynamic/json?label=npm%0Apackage&amp;query=%24%5B%27dist-tags%27%5D%5B%27latest%27%5D&amp;url=https%3A%2F%2Fregistry.npmjs.org%2Fcadept%2F" alt="npm"></a></p>
+<p><a href="https://amekusa.github.io/cadept/latest/">:blue_book: Documentations</a></p>
+<h2>Getting Started</h2>
+<p>Install the package with NPM:</p>
+<pre class="prettyprint source lang-sh"><code>npm i cadept
+</code></pre>
+<p>And <code>require()</code> it:</p>
+<pre class="prettyprint source lang-js"><code>const Task = require('cadept');
+</code></pre>
+<p>or <code>import</code> it as an ES module:</p>
+<pre class="prettyprint source lang-js"><code>import Task from 'cadept';
+</code></pre>
+<h2>Usage</h2>
+<pre class="prettyprint source lang-js"><code>// Create a task
+const task = new Task((resolve, reject) => {
+
+  /* do stuff */
+
+  resolve(); // Finish
+});
+
+task(); // Run a task
+</code></pre>
+<p>A task instance is callable just like a function. And it runs <strong>asynchronously</strong>.</p>
+<p>The called task returns a <strong>Promise</strong> object so you can hook on the task resolution (or rejection) like this:</p>
+<pre class="prettyprint source lang-js"><code>const task = new Task((resolve, reject) => {
+  resolve('Task Complete.');
+});
+
+task().then(result => {
+  console.log(result); // output: 'Task Complete.'
+});
+</code></pre>
+<p>If you prefer simpler syntax, you can also write like this:</p>
+<pre class="prettyprint source lang-js"><code>const task = new Task(() => {
+  return 'Task Complete.';
+});
+
+task().then(result => {
+  console.log(result); // output: 'Task Complete.'
+});
+</code></pre>
+<h3>Adding task dependencies</h3>
+<p>A task can be associated with another tasks as its <strong>dependencies</strong>.</p>
+<pre class="prettyprint source lang-js"><code>const task_X = new Task(resolve => {
+  console.log('task_X: OK');
+  resolve();
+});
+
+const task_Y = new Task(resolve => {
+  console.log('task_Y: OK');
+  resolve();
+});
+
+const task_Z = new Task(resolve => {
+  console.log('task_Z: OK');
+  resolve();
+}, [task_X, task_Y]); // Dependencies
+
+task_Z(); // Run task_Z
+</code></pre>
+<p>Output:</p>
+<pre class="prettyprint source lang-js"><code>task_X: OK
+task_Y: OK
+task_Z: OK
+</code></pre>
+<p>The 2nd parameter of <code>Task()</code> is an array of dependency tasks, which are <code>task_X</code> and <code>task_Y</code> in the above example. When the dependent task ( <code>task_Z</code> ) is called, it calls its dependencies in parallel, prior to execute its own function, awaiting all the dependencies are resolved.</p>
+<p>Alternatively, you can also use <code>depend()</code> to add dependencies to a task.</p>
+<pre class="prettyprint source lang-js"><code>task_Z.depend(task_X, task_Y);
+task_Z();
+</code></pre>
+<p>For more instructions, examples, and advanced usages, please see:<br>
+<a href="https://amekusa.github.io/cadept/latest/">:blue_book: Documentations</a></p>
+<hr>
+<p>© 2020 Satoshi Soma (amekusa.com)</p>
+    </article>
+
+
+
+
+
+
+
+        
+        <footer class="colophon">
+            
+            <p class="copyright">&copy; 2020 Satoshi Soma (<a href="https://amekusa.com">amekusa.com</a>)</p>
+            
+            
+            <p class="credits">
+                Documentation generated by <a rel="external" href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a><br>
+                
+                on <time datetime="2021-01-02T08:34:39.858Z">Sat Jan 02 2021 17:34:39 GMT+0900 (Japan Standard Time)</time><br>
+                
+                using <a rel="external" href="https://github.com/amekusa/docolatte">docolatte</a> theme
+            </p>
+            
+        </footer>
+        
+    </main>
+
+    <input id="docolatte-shows-sidebar" type="checkbox">
+    <label class="overlay" for="docolatte-shows-sidebar"></label>
+    <label class="menu-button" for="docolatte-shows-sidebar">
+        <div class="shape">
+            <i class="icon burger">
+                <span class="top"></span>
+                <span class="middle"></span>
+                <span class="bottom"></span>
+            </i>
+        </div>
+    </label>
+
+    <div class="sidebar">
+        <div class="toc">
+            <div class="search-box">
+	<input class="search" type="text" placeholder="type to search…"><i class="icon magnifier"></i>
+	<ol class="suggestions"></ol>
+	<div class="hint hidden not-for-mobile">
+		<p><b>Hint:</b> You don't need to click on the search box to input.</p>
+		<p class="more">Just start typing your words at <strong>any time</strong> to search for it.</p>
+	</div>
+</div>
+<nav><h3>Classes</h3><ul><li><a href="Task.html">Task</a><ul class="methods"><li><a href="Task.html#.option">option</a></li><li><a href="Task.html#.options">options</a></li><li><a href="Task.html#.reset">reset</a></li><li><a href="Task.html#depend">depend</a></li><li><a href="Task.html#deregister">deregister</a></li><li><a href="Task.html#error">error</a></li><li><a href="Task.html#log">log</a></li><li><a href="Task.html#register">register</a></li><li><a href="Task.html#setLogLevel">setLogLevel</a></li><li><a href="Task.html#warn">warn</a></li></ul></li><li><a href="TaskManager.html">TaskManager</a><ul class="methods"><li><a href="TaskManager.html#.global">global</a></li><li><a href="TaskManager.html#add">add</a></li><li><a href="TaskManager.html#clear">clear</a></li><li><a href="TaskManager.html#get">get</a></li><li><a href="TaskManager.html#has">has</a></li><li><a href="TaskManager.html#newTask">newTask</a></li><li><a href="TaskManager.html#remove">remove</a></li></ul></li></ul></nav><nav><h3><a href="global.html">Global</a></h3></nav>
+        </div>
+    </div>
+</div>
+
+<script>prettyPrint()</script>
+<script src="scripts/linenumber.js"></script>
+
+<script id="docolatte-search-list" type="application/json">[{"url":"Task.html","name":"Task","longname":"Task","classdesc":"<p>A task that is callable as a function.<br>\nA called task returns a [Promise]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise}.</p>","examples":[{"caption":"Executing a task","code":"var task = new Task('greet', () => { console.log('Hello!') });\ntask(); // \"Hello!\""},{"caption":"Promise","code":"var task = new Task('notify', resolve => {\n  setTimeout(() => {\n    console.warn('Hey!');\n    resolve('task done.');\n  }, 3000);\n});\n\ntask() // runs asnychronously, and returns a promise\n.then(resolved => { // runs after 3 seconds\n  console.log(resolved); // \"task done.\"\n});"},{"caption":"Task dependencies","code":"var taskA = new Task('A', resolve => {\n  setTimeout(() => { console.log('task A done.'); resolve() }, 3000);\n});\nvar taskB = new Task('B', resolve => {\n  setTimeout(() => { console.log('task B done.'); resolve() }, 6000);\n});\nvar taskC = new Task('C', () => {\n  console.log('task C done.');\n}, [taskA, taskB]); // dependencies\n\ntaskC(); // outputs:\n// \"task A done.\"\n// \"task B done.\"\n// \"task C done.\"\n\n// NOTE: taskA and taskB run in parallel"},{"caption":"Omitting some constructor parameters","code":"new Task('task B', [taskA]);      // name and dependencies (no job)\nnew Task(() => { ... }, [taskA]); // job and dependencies (no name)\nnew Task(() => { ... });          // only job (no name, no dependencies)\nnew Task([taskA]);                // only dependencies (no name, no job)"},{"caption":"Adding dependencies","code":"var taskA = new Task('task A', () => { ... });\nvar taskB = new Task('task B', () => { ... });\nvar taskC = new Task('task C', () => { ... });\ntaskC.depend(taskA, taskB);       // add taskA and taskB as dependencies\ntaskC();"}]},{"url":"TaskManager.html","name":"TaskManager","longname":"TaskManager","classdesc":"<p>Owns and manages one or more tasks.</p>"},{"url":"global.html#Dependency","name":"Dependency","longname":"Dependency","description":"<p>A task dependency.<br>\nIf it is a string, that means it is a task name.</p>"},{"url":"global.html#Dependency","name":"Dependency","longname":"Dependency","description":"<p>A task dependency can also be a function.</p>"},{"url":"Task.html#.option","name":"option","longname":"Task.option","description":"<p>Returns the specified option value, or assigns a new value to it.</p>\n<h5>Available Options:</h5>\n<table>\n<thead>\n<tr>\n<th style=\"text-align:right\">Name</th>\n<th style=\"text-align:left\">Default Value</th>\n<th style=\"text-align:left\">Description</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align:right\"><code>defaultManager</code></td>\n<td style=\"text-align:left\">The global {@link TaskManager} instance</td>\n<td style=\"text-align:left\">The default {@link TaskManager}</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>defaultConsole</code></td>\n<td style=\"text-align:left\">The global <code>console</code></td>\n<td style=\"text-align:left\">The default console to output logs</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>defaultLogLevel</code></td>\n<td style=\"text-align:left\"><code>'WARNING'</code></td>\n<td style=\"text-align:left\">The default log level</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>colorSupport</code></td>\n<td style=\"text-align:left\">CLI: <code>1</code>, browser: <code>0</code></td>\n<td style=\"text-align:left\">The default color support level for the console</td>\n</tr>\n</tbody>\n</table>"},{"url":"Task.html#.options","name":"options","longname":"Task.options","description":"<p>Returns all the option values in a plain object form.<br>\nIf an object is provided as the argument, assigns the each property value to the corresponding option.</p>"},{"url":"Task.html#.reset","name":"reset","longname":"Task.reset","description":"<p>Resets all the options to the initial values.</p>"},{"url":"Task.html#console","name":"console","longname":"Task#console","description":"<p>The console object to ouput the logs</p>"},{"url":"Task.html#depend","name":"depend","longname":"Task#depend","description":"<p>Adds one or more dependencies.</p>"},{"url":"Task.html#deregister","name":"deregister","longname":"Task#deregister","description":"<p>Deregisters this task from a {@link TaskManager}.</p>"},{"url":"Task.html#displayName","name":"displayName","longname":"Task#displayName","description":"<p>Name of this task</p>"},{"url":"Task.html#error","name":"error","longname":"Task#error","description":"<p>Logs <code>msg</code> as an error.</p>"},{"url":"Task.html#hasDep","name":"hasDep","longname":"Task#hasDep","description":"<p>Whether this task has any dependency</p>"},{"url":"Task.html#hasName","name":"hasName","longname":"Task#hasName","description":"<p>Whether this task has name</p>"},{"url":"Task.html#isBusy","name":"isBusy","longname":"Task#isBusy","description":"<p>Whether this task is busy</p>"},{"url":"Task.html#isDone","name":"isDone","longname":"Task#isDone","description":"<p>Whether this task is done</p>"},{"url":"Task.html#isFailed","name":"isFailed","longname":"Task#isFailed","description":"<p>Whether this task is failed</p>"},{"url":"Task.html#isIdle","name":"isIdle","longname":"Task#isIdle","description":"<p>Whether this task is idle</p>"},{"url":"Task.html#isRegistered","name":"isRegistered","longname":"Task#isRegistered","description":"<p>Whether this task is registered for a {@link TaskManager}</p>"},{"url":"Task.html#log","name":"log","longname":"Task#log","description":"<p>Logs a message, object, or any kind of value.</p>"},{"url":"Task.html#logLevel","name":"logLevel","longname":"Task#logLevel","description":"<p>The log threshold</p>"},{"url":"Task.html#manager","name":"manager","longname":"Task#manager","description":"<p>The manager that this task has registered for</p>"},{"url":"Task.html#register","name":"register","longname":"Task#register","description":"<p>Registers this task for a {@link TaskManager}.</p>"},{"url":"Task.html#resolved","name":"resolved","longname":"Task#resolved","description":"<p>The resolved value</p>"},{"url":"Task.html#setLogLevel","name":"setLogLevel","longname":"Task#setLogLevel","description":"<p>Sets a log threshold.</p>"},{"url":"Task.html#warn","name":"warn","longname":"Task#warn","description":"<p>Logs <code>msg</code> as a warning.</p>"},{"url":"TaskManager.html#.global","name":"global","longname":"TaskManager.global","description":"<p>Returns a singleton instance of {@link TaskManager}.</p>"},{"url":"TaskManager.html#add","name":"add","longname":"TaskManager#add","description":"<p>Registers a task for this manager.</p>"},{"url":"TaskManager.html#clear","name":"clear","longname":"TaskManager#clear","description":"<p>Removes all the tasks from this manager.</p>"},{"url":"TaskManager.html#get","name":"get","longname":"TaskManager#get","description":"<p>Returns a task specified by name</p>"},{"url":"TaskManager.html#has","name":"has","longname":"TaskManager#has","description":"<p>Returns whether this manager owns the specified task.</p>"},{"url":"TaskManager.html#newTask","name":"newTask","longname":"TaskManager#newTask","description":"<p>Creates a new task and registers it for this manager.</p>"},{"url":"TaskManager.html#remove","name":"remove","longname":"TaskManager#remove","description":"<p>Deregisters a task from this manager.</p>"}]</script>
+<script id="docolatte-search-index" type="application/json">{"keys":[{"path":["name"],"id":"name","weight":10,"src":"name"},{"path":["longname"],"id":"longname","weight":9,"src":"longname"},{"path":["classdesc"],"id":"classdesc","weight":6,"src":"classdesc"},{"path":["description"],"id":"description","weight":6,"src":"description"},{"path":["examples"],"id":"examples","weight":1,"src":"examples"}],"records":[{"i":0,"$":{"0":{"v":"Task","n":1},"1":{"v":"Task","n":1},"2":{"v":"<p>A task that is callable as a function.<br>\nA called task returns a [Promise]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise}.</p>","n":0.267},"4":[]}},{"i":1,"$":{"0":{"v":"TaskManager","n":1},"1":{"v":"TaskManager","n":1},"2":{"v":"<p>Owns and manages one or more tasks.</p>","n":0.378}}},{"i":2,"$":{"0":{"v":"Dependency","n":1},"1":{"v":"Dependency","n":1},"3":{"v":"<p>A task dependency.<br>\nIf it is a string, that means it is a task name.</p>","n":0.267}}},{"i":3,"$":{"0":{"v":"Dependency","n":1},"1":{"v":"Dependency","n":1},"3":{"v":"<p>A task dependency can also be a function.</p>","n":0.354}}},{"i":4,"$":{"0":{"v":"option","n":1},"1":{"v":"Task.option","n":1},"3":{"v":"<p>Returns the specified option value, or assigns a new value to it.</p>\n<h5>Available Options:</h5>\n<table>\n<thead>\n<tr>\n<th style=\"text-align:right\">Name</th>\n<th style=\"text-align:left\">Default Value</th>\n<th style=\"text-align:left\">Description</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td style=\"text-align:right\"><code>defaultManager</code></td>\n<td style=\"text-align:left\">The global {@link TaskManager} instance</td>\n<td style=\"text-align:left\">The default {@link TaskManager}</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>defaultConsole</code></td>\n<td style=\"text-align:left\">The global <code>console</code></td>\n<td style=\"text-align:left\">The default console to output logs</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>defaultLogLevel</code></td>\n<td style=\"text-align:left\"><code>'WARNING'</code></td>\n<td style=\"text-align:left\">The default log level</td>\n</tr>\n<tr>\n<td style=\"text-align:right\"><code>colorSupport</code></td>\n<td style=\"text-align:left\">CLI: <code>1</code>, browser: <code>0</code></td>\n<td style=\"text-align:left\">The default color support level for the console</td>\n</tr>\n</tbody>\n</table>","n":0.134}}},{"i":5,"$":{"0":{"v":"options","n":1},"1":{"v":"Task.options","n":1},"3":{"v":"<p>Returns all the option values in a plain object form.<br>\nIf an object is provided as the argument, assigns the each property value to the corresponding option.</p>","n":0.196}}},{"i":6,"$":{"0":{"v":"reset","n":1},"1":{"v":"Task.reset","n":1},"3":{"v":"<p>Resets all the options to the initial values.</p>","n":0.354}}},{"i":7,"$":{"0":{"v":"console","n":1},"1":{"v":"Task#console","n":1},"3":{"v":"<p>The console object to ouput the logs</p>","n":0.378}}},{"i":8,"$":{"0":{"v":"depend","n":1},"1":{"v":"Task#depend","n":1},"3":{"v":"<p>Adds one or more dependencies.</p>","n":0.447}}},{"i":9,"$":{"0":{"v":"deregister","n":1},"1":{"v":"Task#deregister","n":1},"3":{"v":"<p>Deregisters this task from a {@link TaskManager}.</p>","n":0.378}}},{"i":10,"$":{"0":{"v":"displayName","n":1},"1":{"v":"Task#displayName","n":1},"3":{"v":"<p>Name of this task</p>","n":0.5}}},{"i":11,"$":{"0":{"v":"error","n":1},"1":{"v":"Task#error","n":1},"3":{"v":"<p>Logs <code>msg</code> as an error.</p>","n":0.447}}},{"i":12,"$":{"0":{"v":"hasDep","n":1},"1":{"v":"Task#hasDep","n":1},"3":{"v":"<p>Whether this task has any dependency</p>","n":0.408}}},{"i":13,"$":{"0":{"v":"hasName","n":1},"1":{"v":"Task#hasName","n":1},"3":{"v":"<p>Whether this task has name</p>","n":0.447}}},{"i":14,"$":{"0":{"v":"isBusy","n":1},"1":{"v":"Task#isBusy","n":1},"3":{"v":"<p>Whether this task is busy</p>","n":0.447}}},{"i":15,"$":{"0":{"v":"isDone","n":1},"1":{"v":"Task#isDone","n":1},"3":{"v":"<p>Whether this task is done</p>","n":0.447}}},{"i":16,"$":{"0":{"v":"isFailed","n":1},"1":{"v":"Task#isFailed","n":1},"3":{"v":"<p>Whether this task is failed</p>","n":0.447}}},{"i":17,"$":{"0":{"v":"isIdle","n":1},"1":{"v":"Task#isIdle","n":1},"3":{"v":"<p>Whether this task is idle</p>","n":0.447}}},{"i":18,"$":{"0":{"v":"isRegistered","n":1},"1":{"v":"Task#isRegistered","n":1},"3":{"v":"<p>Whether this task is registered for a {@link TaskManager}</p>","n":0.333}}},{"i":19,"$":{"0":{"v":"log","n":1},"1":{"v":"Task#log","n":1},"3":{"v":"<p>Logs a message, object, or any kind of value.</p>","n":0.333}}},{"i":20,"$":{"0":{"v":"logLevel","n":1},"1":{"v":"Task#logLevel","n":1},"3":{"v":"<p>The log threshold</p>","n":0.577}}},{"i":21,"$":{"0":{"v":"manager","n":1},"1":{"v":"Task#manager","n":1},"3":{"v":"<p>The manager that this task has registered for</p>","n":0.354}}},{"i":22,"$":{"0":{"v":"register","n":1},"1":{"v":"Task#register","n":1},"3":{"v":"<p>Registers this task for a {@link TaskManager}.</p>","n":0.378}}},{"i":23,"$":{"0":{"v":"resolved","n":1},"1":{"v":"Task#resolved","n":1},"3":{"v":"<p>The resolved value</p>","n":0.577}}},{"i":24,"$":{"0":{"v":"setLogLevel","n":1},"1":{"v":"Task#setLogLevel","n":1},"3":{"v":"<p>Sets a log threshold.</p>","n":0.5}}},{"i":25,"$":{"0":{"v":"warn","n":1},"1":{"v":"Task#warn","n":1},"3":{"v":"<p>Logs <code>msg</code> as a warning.</p>","n":0.447}}},{"i":26,"$":{"0":{"v":"global","n":1},"1":{"v":"TaskManager.global","n":1},"3":{"v":"<p>Returns a singleton instance of {@link TaskManager}.</p>","n":0.378}}},{"i":27,"$":{"0":{"v":"add","n":1},"1":{"v":"TaskManager#add","n":1},"3":{"v":"<p>Registers a task for this manager.</p>","n":0.408}}},{"i":28,"$":{"0":{"v":"clear","n":1},"1":{"v":"TaskManager#clear","n":1},"3":{"v":"<p>Removes all the tasks from this manager.</p>","n":0.378}}},{"i":29,"$":{"0":{"v":"get","n":1},"1":{"v":"TaskManager#get","n":1},"3":{"v":"<p>Returns a task specified by name</p>","n":0.408}}},{"i":30,"$":{"0":{"v":"has","n":1},"1":{"v":"TaskManager#has","n":1},"3":{"v":"<p>Returns whether this manager owns the specified task.</p>","n":0.354}}},{"i":31,"$":{"0":{"v":"newTask","n":1},"1":{"v":"TaskManager#newTask","n":1},"3":{"v":"<p>Creates a new task and registers it for this manager.</p>","n":0.316}}},{"i":32,"$":{"0":{"v":"remove","n":1},"1":{"v":"TaskManager#remove","n":1},"3":{"v":"<p>Deregisters a task from this manager.</p>","n":0.408}}}]}</script>
+<script id="docolatte-search-options" type="application/json">{"keys":[{"name":"name","weight":10},{"name":"longname","weight":9},{"name":"classdesc","weight":6},{"name":"description","weight":6},{"name":"examples","weight":1}]}</script>
+
+<script>
+    var _SEARCH = {
+        list: document.getElementById('docolatte-search-list').innerHTML,
+        index: document.getElementById('docolatte-search-index').innerHTML,
+        options: document.getElementById('docolatte-search-options').innerHTML
+    };
+</script>
+
+</body>
+</html>
