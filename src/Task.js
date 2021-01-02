@@ -278,6 +278,14 @@ class Task extends Callable {
 	warn(...msg) {
 		if (this.logLevel >= local.logLevels.WARN) this.console.warn(this.label, ...msg);
 		return this;
+	}
+	/**
+	 * Logs `msg` as an error.
+	 * @param {...any} msg Any type of value to log
+	 * @return {Task} this object
+	 */
+	error(...msg) {
+		if (this.logLevel >= local.logLevels.ERROR) this.console.error(this.label, ...msg);
 		return this;
 	}
 	/**
