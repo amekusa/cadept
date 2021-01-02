@@ -372,7 +372,7 @@ class Task extends Callable {
 			break;
 		case 'defaultLogLevel':
 			InvalidType.check(value, 'string', 'int');
-			value = local.logLevels[value.toUpperCase()];
+			if (typeof value == 'string') value = local.logLevels[value.toUpperCase()];
 			break;
 		case 'colorSupport':
 			InvalidType.check(value, 'int');
