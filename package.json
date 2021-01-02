@@ -82,6 +82,6 @@
     "generic-exceptions": "^2.0.1"
   },
   "devDependencies": {
-    "docolatte": "^2.10.1"
+    "docolatte": "^2.10.2"
   }
 }
