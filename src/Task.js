@@ -328,7 +328,9 @@ class Task extends Callable {
 					this._resolved = arg;
 					return resolve(arg);
 				};
-				return this._fn(_resolve, reject);
+				return this._fn.length ?
+					this._fn(_resolve, reject) :
+					_resolve(this._fn());
 			};
 			let catcher = err => {
 				if (!err) err = 'unknown reason';
