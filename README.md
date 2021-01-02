@@ -53,6 +53,20 @@ task().then(result => {
 });
 ```
 
+If you prefer simpler syntax, you can also write like this:
+
+```js
+const task = new Task(() => {
+  return 'Task Complete.';
+});
+
+task().then(result => {
+  console.log(result); // output: 'Task Complete.'
+});
+```
+
+
+
 ### Adding task dependencies
 
 A task can be associated with another tasks as its **dependencies**.
