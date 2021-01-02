@@ -11,7 +11,8 @@ const local = {
 	states: {
 		IDLE: 0,
 		BUSY: 1,
-		DONE: 2
+		DONE: 2,
+		FAILED: 3
 	},
 	logLevels: {
 		DEFAULT: -1,
@@ -171,6 +172,14 @@ class Task extends Callable {
 		return this._state == local.states.BUSY;
 	}
 	/**
+	 * Whether this task is failed
+	 * @type {boolean}
+	 * @readonly
+	 */
+	get isFailed() {
+		return this._state == local.states.FAILED;
+	}
+	/**
 	 * Whether this task is registered for a {@link TaskManager}
 	 * @type {boolean}
 	 * @readonly
@@ -302,45 +311,54 @@ class Task extends Callable {
 		}
 		return this;
 	}
-	_resolver(resolve, reject) {
-		this.log(`${c.yellow('running')}...`);
-		let _resolve = arg => {
-			this.log(`${c.green('resolved.')}`);
-			this._state = local.states.DONE;
-			this._resolved = arg;
-			return resolve(arg);
-		};
-		return this._fn(_resolve, reject);
-	}
 	/**
 	 * @override
 	 * @ignore
 	 * @return {Promise}
 	 */
 	__call() {
-		if (this._promise) return this._promise;
-		this._state = local.states.BUSY;
-		if (this.hasDep) {
-			this.log(`${c.yellow('Resolving')} dependencies ...`);
-			let promises = [];
-			for (let dep of this._deps) {
-				let promise = null;
-				if (dep instanceof Task) promise = dep();
-				else if (dep instanceof Promise) promise = dep;
-				else if (typeof dep == 'function') promise = new Promise(dep);
-				else if (typeof dep == 'string') {
-					if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
-					let task = this._manager.get(dep);
-					if (!task) throw new Exception(`no such task as '${dep}'`);
-					promise = task();
-				} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
-				promises.push(promise);
-			}
-			this._promise = Promise.all(promises).then(() => {
-				this.log(`All the dependincies have been ${c.green('resolved')}`);
-				return new Promise(this._resolver.bind(this));
-			});
-		} else this._promise = new Promise(this._resolver.bind(this));
+		if (!this._promise) {
+			this._state = local.states.BUSY;
+
+			let resolver = (resolve, reject) => {
+				this.log(`${c.yellow('Running')} ...`);
+				let _resolve = arg => {
+					this.log(`${c.green('Resolved')}`);
+					this._state = local.states.DONE;
+					this._resolved = arg;
+					return resolve(arg);
+				};
+				return this._fn(_resolve, reject);
+			};
+			let catcher = err => {
+				if (!err) err = 'unknown reason';
+				this.error(`${c.red('Failed:')}`, err);
+				this._state = local.states.FAILED;
+				throw err;
+			};
+			if (this.hasDep) {
+				this.log(`${c.yellow('Resolving')} dependencies ...`);
+				let promises = [];
+				for (let dep of this._deps) {
+					let promise = null;
+					if (dep instanceof Task) promise = dep();
+					else if (dep instanceof Promise) promise = dep;
+					else if (typeof dep == 'function') promise = new Promise(dep);
+					else if (typeof dep == 'string') {
+						if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
+						let task = this._manager.get(dep);
+						if (!task) throw new Exception(`no such task as '${dep}'`);
+						promise = task();
+					} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
+					promises.push(promise);
+				}
+				this._promise = Promise.all(promises).then(() => {
+					this.log(`All the dependencies have been ${c.green('resolved')}`);
+					return new Promise(resolver);
+				}).catch(catcher);
+
+			} else this._promise = new Promise(resolver).catch(catcher);
+		}
 		return this._promise;
 	}
 	/**
