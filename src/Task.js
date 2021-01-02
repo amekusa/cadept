@@ -266,8 +266,8 @@ class Task extends Callable {
 	 * @param {...any} msg Any type of value to log
 	 * @return {Task} this object
 	 */
-	log(msg) {
-		if (this.logLevel >= local.logLevels.ALL && this._name) this.console.log(this.label, msg);
+	log(...msg) {
+		if (this.logLevel >= local.logLevels.ALL && this._name) this.console.log(this.label, ...msg);
 		return this;
 	}
 	/**
@@ -275,8 +275,9 @@ class Task extends Callable {
 	 * @param {...any} msg Any type of value to log
 	 * @return {Task} this object
 	 */
-	warn(msg) {
-		if (this.logLevel >= local.logLevels.WARN) this.console.warn(this.label, msg);
+	warn(...msg) {
+		if (this.logLevel >= local.logLevels.WARN) this.console.warn(this.label, ...msg);
+		return this;
 		return this;
 	}
 	/**
