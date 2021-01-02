@@ -102,9 +102,9 @@ const Task = require('./bundle');
 const TaskManager = Task.Manager;
 
 function setup() {
-	let t = new Task(`test`, r => r(`done.`));
-	let t2 = new Task(`test2`, r => r(`test2:done.`));
-	let t3 = new Task(`test3`, r => r(`test3:done.`));
+	let t = new Task(`test`, r => { r(`done.`) });
+	let t2 = new Task(`test2`, r => { r(`test2:done.`) });
+	let t3 = new Task(`test3`, r => { r(`test3:done.`) });
 	let manager = new TaskManager();
 	return { t, t2, t3, manager };
 }
@@ -114,8 +114,8 @@ beforeEach(() => {
 	Task.reset();
 	Task.options({
 		defaultConsole: logger,
-		defaultLogLevel: 'all',
-		colorSupport: 0
+		colorSupport: 0,
+		defaultLogLevel: 3
 	});
 });
 
@@ -132,38 +132,74 @@ describe(`Task`, () => {
 	describe(`members`, () => {
 		let dep = new Task('dep', resolve => { resolve('dep:done.') });
 		let a = new Task('A', resolve => { resolve('a:done.') }, [dep]);
-		let b = new Task('B', resolve => { resolve('b:done.') });
-		let c = new Task('C', resolve => { setTimeout(resolve, 1500) }); c();
-		let d = new Task(resolve => { resolve('d:done.') }); d();
-		let e = new Task('E', resolve => { resolve('e:done.') }); e.register();
-		compareMembers({a, b, c, d, e}, {
+		let b = new Task('B', resolve => { resolve('b:done.') }); b.setLogLevel(1);
+		let c = new Task('C', resolve => { resolve('e:done.') }); c.register();
+		let d = new Task(resolve => { resolve('d:done.') });
+		compareMembers({ a, b, c, d }, {
 			displayName: { a:'A', b:'B', c:'C', d:'' },
 			label: { a:'[A]', b:'[B]', c:'[C]', d:'[anonymous task]' },
-			hasName: { a:true, d:false },
-			hasDep: { a:true, b:false },
-			isIdle: { a:true, b:true, c:false, d:false },
-			isDone: { a:false, c:false, d:true },
-			isBusy: { a:false, c:true, d:false },
-			isRegistered: { a:false, e:true },
-			resolved: { a:null, d:'d:done.' },
-			manager: { a:null, e:TaskManager.global() }
+			hasName: { a:true, b:true, c:true, d:false },
+			hasDep: { a:true, b:false, c:false, d:false },
+			isRegistered: { a:false, b:false, c:true, d:false },
+			logLevel: { a:3, b:1 },
+			manager: { a:null, b:null, c:TaskManager.global(), d:null }
 		});
 	});
 	describe(`methods`, () => {
 		beforeEach(() => {
 			TaskManager.global().clear();
 		});
+		it(`__call`, done => {
+			let t = new Task('test', resolve => {
+				setTimeout(resolve, 1000, 'RESOLVED');
+			});
+			assert.equal(t.isBusy, false);
+			let p = t();
+			assert.ok(t.isBusy);
+			p.then(r => {
+				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.ok(t.isDone);
+				assert.equal(t.isIdle, t.isBusy, t.isFailed, false);
+				done();
+			}).catch(done);
+		});
+		it(`__call :: rejection`, done => {
+			let t = new Task('test', (resolve, reject) => { reject('REJECTED') });
+			t().then(() => {
+				assert.fail(`shouldn't reach here`);
+				done();
+			}).catch(err => {
+				assert.equal(err, 'REJECTED');
+				assert.ok(t.isFailed);
+				assert.equal(t.isIdle, t.isBusy, t.isDone, false);
+				done();
+			}).catch(done);
+		});
+		it(`__call :: error`, done => {
+			let t = new Task('test', () => {
+				throw 'ERROR';
+			});
+			t().then(() => {
+				assert.fail(`shouldn't reach here`);
+				done();
+			}).catch(err => {
+				assert.equal(err, 'ERROR');
+				assert.ok(t.isFailed);
+				assert.equal(t.isIdle, t.isBusy, t.isDone, false);
+				done();
+			}).catch(done);
+		});
 		it(`register`, () => {
-			var { t } = setup();
+			let { t } = setup();
 			assert.strictEqual(t.register(), t);
 		});
 		it(`register(manager)`, () => {
-			var { t, manager } = setup();
+			let { t, manager } = setup();
 			t.register(manager);
 			assert.strictEqual(t.manager, manager);
 		});
 		it(`deregister`, () => {
-			var { t } = setup();
+			let { t } = setup();
 			let manager = TaskManager.global();
 			t.register();
 			assert.ok(t.isRegistered);
@@ -172,8 +208,8 @@ describe(`Task`, () => {
 			assert.ok(!t.isRegistered);
 			assert.ok(!manager.has(t));
 		});
-		it(`depend`, () => {
-			var { t, t2, t3 } = setup();
+		it(`depend`, done => {
+			let { t, t2, t3 } = setup();
 			t.depend(t2, t3);
 			assert.ok(t.hasDep);
 			t().then(resolved => {
@@ -184,10 +220,11 @@ describe(`Task`, () => {
 				assert.equal(t.resolved, `done.`);
 				assert.equal(t2.resolved, `test2:done.`);
 				assert.equal(t3.resolved, `test3:done.`);
-			});
+				done();
+			}).catch(done);
 		});
-		it(`depend(string)`, () => {
-			var { t, t2, t3 } = setup();
+		it(`depend(string)`, done => {
+			let { t, t2, t3 } = setup();
 			t.depend(`test2`, `test3`);
 			t.register();
 			t2.register();
@@ -200,7 +237,8 @@ describe(`Task`, () => {
 				assert.equal(t.resolved, `done.`);
 				assert.equal(t2.resolved, `test2:done.`);
 				assert.equal(t3.resolved, `test3:done.`);
-			});
+				done();
+			}).catch(done);
 		});
 	});
 	describe(`options`, () => {
