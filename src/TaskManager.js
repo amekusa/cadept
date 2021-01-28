@@ -11,6 +11,10 @@ let instance = null;
 class TaskManager {
 	constructor() {
 		this._tasks = {};
+		this._last = null;
+	}
+	get last() {
+		return this._last;
 	}
 	/**
 	 * Removes all the tasks from this manager.
@@ -19,6 +23,7 @@ class TaskManager {
 	clear() {
 		for (let i in this._tasks) this._tasks[i]._deregister();
 		this._tasks = {};
+		this._last = null;
 		return this;
 	}
 	/**
@@ -53,6 +58,7 @@ class TaskManager {
 	}
 	_add(task) {
 		this._tasks[task.displayName] = task;
+		this._last = task;
 		task._register(this);
 	}
 	/**
@@ -64,6 +70,7 @@ class TaskManager {
 		let task = this.get(taskName);
 		if (!task) throw new Exception(`no such task as '${taskName}'`);
 		delete this._tasks[taskName];
+		if (task === this._last) this._last = null;
 		task._deregister();
 		return task;
 	}
