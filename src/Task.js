@@ -152,6 +152,25 @@ class Task extends Callable {
 		return !!(this._deps && this._deps.length);
 	}
 	/**
+	 * The current state of this task
+	 *
+	 * | Possible State | Meaning |
+	 * |---------------:|:--------|
+	 * | `IDLE` | The initial state |
+	 * | `BUSY` | Resolving |
+	 * | `DONE` | Resolved |
+	 * | `FAILED` | Failed to resolve |
+	 *
+	 * @type {string}
+	 * @readonly
+	 */
+	get state() {
+		for (let i in local.states) {
+			if (local.states[i] == this._state) return i;
+		}
+		return 'UNKNOWN';
+	}
+	/**
 	 * Whether this task is idle
 	 * @type {boolean}
 	 * @readonly
