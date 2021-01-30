@@ -1,5 +1,9 @@
-import Callable from './Callable';
-import Manager from './TaskManager';
+import Callable from './Callable.js';
+import Manager from './TaskManager.js';
+import {
+	TaskJobFailure,
+	TaskDepFailure
+} from './errors.js';
 
 const { Exception, InvalidType } = require('generic-exceptions');
 const flexParams = require('flex-params');
@@ -323,25 +327,29 @@ class Task extends Callable {
 			let resolver = (resolve, reject) => {
 				this.log(`${c.yellow('Running')} ...`);
 				let _resolve = arg => {
-					this.log(`${c.green('Resolved')}`);
 					this._state = local.states.DONE;
 					this._resolved = arg;
+					this.log(`${c.green('Resolved')}`);
 					return resolve(arg);
 				};
 				return this._fn.length ?
 					this._fn(_resolve, reject) :
 					_resolve(this._fn());
 			};
-			let catcher = err => {
-				if (!err) err = 'unknown reason';
-				this.error(`${c.red('Failed:')}`, err);
+			let errHandler = err => {
 				this._state = local.states.FAILED;
-				throw err;
+				if (!err) err = 'unknown reason';
+				this.error(`${c.red('Failed')}:`, err);
+				throw new TaskJobFailure(null, {
+					task: this,
+					thrown: err
+				}, true);
 			};
 			if (this.hasDep) {
 				this.log(`${c.yellow('Resolving')} dependencies ...`);
 				let promises = [];
-				for (let dep of this._deps) {
+				for (let i = 0; i < this._deps.length; i++) {
+					let dep = this._deps[i];
 					let promise = null;
 					if (dep instanceof Task) promise = dep();
 					else if (dep instanceof Promise) promise = dep;
@@ -352,14 +360,26 @@ class Task extends Callable {
 						if (!task) throw new Exception(`no such task as '${dep}'`);
 						promise = task();
 					} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
-					promises.push(promise);
+					promises.push(promise.catch(err => {
+						throw { dep, i, err };
+					}));
 				}
-				this._promise = Promise.all(promises).then(() => {
-					this.log(`All the dependencies have been ${c.green('resolved')}`);
-					return new Promise(resolver);
-				}).catch(catcher);
+				this._promise = Promise.all(promises).catch(err => {
+					this._state = local.states.FAILED;
+					this.error(`${c.red('Dependency Error')}:`, `dep: ${c.yellow(err.dep)}, index: ${c.yellow(err.i)}`);
+					throw new TaskDepFailure(null, {
+						task: this,
+						dep: err.dep,
+						index: err.i,
+						thrown: err.err
+					}, true);
 
-			} else this._promise = new Promise(resolver).catch(catcher);
+				}).then(() => {
+					this.log(`All the dependencies have been ${c.green('resolved')}`);
+					return new Promise(resolver).catch(errHandler);
+				});
+
+			} else this._promise = new Promise(resolver).catch(errHandler);
 		}
 		return this._promise;
 	}

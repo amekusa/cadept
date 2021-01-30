@@ -79,7 +79,7 @@
     "chalk": "^4.1.0",
     "conso1e": "^1.2.2",
     "flex-params": "^3.0.1",
-    "generic-exceptions": "^2.0.1"
+    "generic-exceptions": "^3.0.2"
   },
   "devDependencies": {
     "docolatte": "^2.10.2"
