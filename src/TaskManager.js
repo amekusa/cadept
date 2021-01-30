@@ -1,4 +1,4 @@
-import Task from './Task';
+import Task from './Task.js';
 
 const { Exception, InvalidType } = require('generic-exceptions');
 const flexParams = require('flex-params');
