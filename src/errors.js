@@ -13,7 +13,7 @@ class TaskException extends Exception {}
  */
 class TaskJobFailure extends TaskException {
 	static get message() {
-		return `A task cannot be resolved due to an error occurred during the task execution.`;
+		return `a task cannot be resolved due to an error occurred during the task execution`;
 	}
 }
 
@@ -24,7 +24,7 @@ class TaskJobFailure extends TaskException {
  */
 class TaskDepFailure extends TaskException {
 	static get message() {
-		return `A task cannot be executed due to its dependency failed to resolve.`
+		return `a task cannot be executed due to its dependency failed to resolve`
 	}
 }
 
