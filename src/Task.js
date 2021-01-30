@@ -248,6 +248,19 @@ class Task extends Callable {
 	set console(x) {
 		this._console = x instanceof conso1e ? x : conso1e.wrap(x);
 	}
+	toString() {
+		return `[${this.constructor.name} ` + (this.displayName ? `'${this.displayName}'` : `(anonymous)`) + ']';
+	}
+	toJSON() {
+		let r = {
+			displayName: this.displayName,
+			state: this.state,
+			isRegistered: this.isRegistered,
+			hasDep: this.hasDep
+		};
+		if (this.isDone) r.resolved = this._resolved;
+		return r;
+	}
 	/**
 	 * Registers this task for a {@link TaskManager}.
 	 * @param {TaskManager} [manager] The {@link TaskManager} instance to register this task for.
