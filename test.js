@@ -169,7 +169,8 @@ describe(`Task`, () => {
 				assert.fail(`shouldn't reach here`);
 				done();
 			}).catch(err => {
-				assert.equal(err, 'REJECTED');
+				assert.ok(err instanceof Task.JobFailure);
+				assert.equal(err.info.thrown, 'REJECTED');
 				assert.ok(t.isFailed);
 				assert.equal(t.isIdle, t.isBusy, t.isDone, false);
 				done();
@@ -183,7 +184,8 @@ describe(`Task`, () => {
 				assert.fail(`shouldn't reach here`);
 				done();
 			}).catch(err => {
-				assert.equal(err, 'ERROR');
+				assert.ok(err instanceof Task.JobFailure);
+				assert.equal(err.info.thrown, 'ERROR');
 				assert.ok(t.isFailed);
 				assert.equal(t.isIdle, t.isBusy, t.isDone, false);
 				done();
@@ -214,7 +216,8 @@ describe(`Task`, () => {
 				assert.fail(`shouldn't reach here`);
 				done();
 			}).catch(err => {
-				assert.equal(err, 'ERROR');
+				assert.ok(err instanceof Task.JobFailure);
+				assert.equal(err.info.thrown, 'ERROR');
 				assert.ok(t.isFailed);
 				done();
 			}).catch(done);
