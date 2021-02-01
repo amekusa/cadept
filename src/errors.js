@@ -1,30 +1,61 @@
-import { Exception } from 'generic-exceptions';
+const { Exception } = require('generic-exceptions');
 
 /**
+ * The base class of all the {@link Task} related exceptions.
  * @extends Exception@generic-exceptions
- * @ignore
+ * @hideconstructor
  */
-class TaskException extends Exception {}
+class TaskException extends Exception {
+	/**
+	 * Additional informations for debug.
+	 *
+	 * #### Properties:
+	 * | Name | Type | Description |
+	 * |-----:|:-----|:------------|
+	 * | `task` | {@link Task} | The erroneous task |
+	 * | `thrown` | `any` | The thrown error |
+	 *
+	 * @member TaskException#info
+	 * @type {object}
+	 * @readonly
+	 */
+}
 
 /**
- * Thrown when an error occurred during task execution.
+ * The exception that is thrown when an error occurred during task execution.
  * @extends TaskException
- * @ignore
+ * @hideconstructor
  */
 class TaskJobFailure extends TaskException {
 	static get message() {
-		return `a task cannot be resolved due to an error occurred during the task execution`;
+		return `an error occurred during the task execution`;
 	}
 }
 
 /**
- * Thrown to indicate that a task can't be executed due to its dependency failed to resolve.
+ * The exception that is thrown to indicate that a task can't be executed due to its dependency failed to resolve.
  * @extends TaskException
- * @ignore
+ * @hideconstructor
  */
 class TaskDepFailure extends TaskException {
+	/**
+	 * Additional informations for debug.
+	 *
+	 * #### Properties:
+	 * | Name | Type | Description |
+	 * |-----:|:-----|:------------|
+	 * | `task` | {@link Task} | The dependent task |
+	 * | `dep` | {@link Dependency} | The erroneous dependency |
+	 * | `index` | `int` | The index of `dep` |
+	 * | `thrown` | `any` | The thrown error |
+	 *
+	 * @member TaskDepFailure#info
+	 * @type {object}
+	 * @readonly
+	 */
+
 	static get message() {
-		return `a task cannot be executed due to its dependency failed to resolve`
+		return `a task can't be executed due to its dependency failed to resolve`
 	}
 }
 
