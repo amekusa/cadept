@@ -1,6 +1,7 @@
 import Callable from './Callable.js';
 import TaskManager from './TaskManager.js';
 import {
+	TaskException,
 	TaskJobFailure,
 	TaskDepFailure
 } from './errors.js';
