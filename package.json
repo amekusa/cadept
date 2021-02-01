@@ -12,12 +12,13 @@
     "require": "./bundle.js"
   },
   "scripts": {
-    "prepublishOnly": "npm run test && npm run build",
+    "prepublishOnly": "npm run clean && npm run test && npm run build",
     "setup": "node setup.js",
     "watch": "npm-watch",
     "test": "nyc mocha",
     "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "build": "rollup src/Task.js --file bundle.js --sourcemap --format umd --name cadept",
+    "clean": "find . -name '.DS_Store' -not -path '*/node_modules/*' | xargs rm -r",
     "docs": "npm run docs:gen && npm run docs:publish",
     "docs:gen": "npm run docs:clean && jsdoc -c jsdoc.json && cd docs/cadept && ln -sfn $npm_package_version latest",
     "docs:clean": "rm -rf docs/cadept/$npm_package_version",
