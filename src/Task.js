@@ -32,14 +32,13 @@ const local = {
  * A task dependency.
  * If it is a string, that means it is a task name.
  * @typedef {Task|Promise|string} Dependency
- **/
-
+ */
 /**
  * A task dependency can also be a function.
  * @callback Dependency
  * @param {function} resolve Call this inside the function to signal that it is resolved
  * @param {function} reject Call this inside the function on errors
- **/
+ */
 
 /**
  * A task that is callable as a function.
@@ -93,12 +92,23 @@ const local = {
  * var taskC = new Task('task C', () => { ... });
  * taskC.depend(taskA, taskB);       // add taskA and taskB as dependencies
  * taskC();
+ *
+ * @example <caption>Error Handling</caption>
+ * var task = new Task((resolve, reject) => {
+ *   throw 'I AM ERROR';
+ *   // or
+ *   reject('I AM ERROR');
+ * });
+ * task().catch(e => {
+ *   // NOTE: e is a TaskJobFailure instance
+ *   console.error(e.thrown); // 'I AM ERROR'
+ * });
  */
 class Task extends Callable {
 	/**
-	 * @param {string} name Task name
-	 * @param {function} fn Task job
-	 * @param {Dependency[]} deps Task dependencies
+	 * @param {string} [name] Task name
+	 * @param {function} [fn] Task job
+	 * @param {Dependency[]} [deps] Task dependencies
 	 */
 	constructor(...args) {
 		super();
