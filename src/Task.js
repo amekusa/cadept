@@ -1,5 +1,5 @@
 import Callable from './Callable.js';
-import Manager from './TaskManager.js';
+import TaskManager from './TaskManager.js';
 import {
 	TaskJobFailure,
 	TaskDepFailure
@@ -268,7 +268,7 @@ class Task extends Callable {
 	 * @return {Task} this object
 	 */
 	register(manager = null) {
-		manager = manager ? InvalidType.check(manager, Manager) : local.options.defaultManager;
+		manager = manager ? InvalidType.check(manager, TaskManager) : local.options.defaultManager;
 		manager.add(this);
 		return this;
 	}
@@ -436,7 +436,7 @@ class Task extends Callable {
 		if (arguments.length < 2) return local.options[name];
 		switch (name) {
 		case 'defaultManager':
-			InvalidType.check(value, Manager);
+			InvalidType.check(value, TaskManager);
 			break;
 		case 'defaultConsole':
 			InvalidType.check(value, 'object');
@@ -473,7 +473,7 @@ class Task extends Callable {
 	 */
 	static reset() {
 		local.options = {
-			defaultManager: Manager.global(),
+			defaultManager: TaskManager.global(),
 			defaultConsole: conso1e.global(),
 			defaultLogLevel: local.logLevels.WARN,
 			colorSupport: typeof window == 'undefined' ? 1 : 0
