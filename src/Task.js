@@ -121,6 +121,38 @@ class Task extends Callable {
 		}, { throw: true });
 	}
 	/**
+	 * {@link TaskManager} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get Manager() {
+		return TaskManager;
+	}
+	/**
+	 * {@link TaskException} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get Exception() {
+		return TaskException;
+	}
+	/**
+	 * {@link TaskJobFailure} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get JobFailure() {
+		return TaskJobFailure;
+	}
+	/**
+	 * {@link TaskDepFailure} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get DepFailure() {
+		return TaskDepFailure;
+	}
+	/**
 	 * Name of this task
 	 * @type {string}
 	 * @readonly
@@ -484,5 +516,4 @@ class Task extends Callable {
 }
 
 Task.reset();
-Task.Manager = Manager;
 export default Task;
