@@ -101,7 +101,7 @@ const local = {
  * });
  * task().catch(e => {
  *   // NOTE: e is a TaskJobFailure instance
- *   console.error(e.thrown); // 'I AM ERROR'
+ *   console.error(e.info.thrown); // 'I AM ERROR'
  * });
  */
 class Task extends Callable {
