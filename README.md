@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/amekusa/cadept.svg?branch=master)](https://travis-ci.com/amekusa/cadept) [![codecov](https://codecov.io/gh/amekusa/cadept/branch/master/graph/badge.svg)](https://codecov.io/gh/amekusa/cadept) [![npm](https://img.shields.io/badge/dynamic/json?label=npm%0Apackage&query=%24%5B%27dist-tags%27%5D%5B%27latest%27%5D&url=https%3A%2F%2Fregistry.npmjs.org%2Fcadept%2F)](https://www.npmjs.com/package/cadept)
 
-[:blue_book: Documentations](https://amekusa.github.io/cadept/latest/)
+[📘 Documentations](https://amekusa.github.io/cadept/latest/Task.html)
 
 
 ## Getting Started
@@ -110,8 +110,17 @@ task_Z();
 
 
 For more instructions, examples, and advanced usages, please see:
-[:blue_book: Documentations](https://amekusa.github.io/cadept/latest/)
+[📘 Documentations](https://amekusa.github.io/cadept/latest/Task.html)
+
+
+
+And also check the real-world example:
+[**p5-livesketch**/index.js](https://github.com/amekusa/p5-livesketch/blob/master/index.js)
+
+
 
 ---
 
-&copy; 2020 Satoshi Soma (amekusa.com)
+## Author
+[Satoshi Soma (amekusa.com)](https://amekusa.com)
+
