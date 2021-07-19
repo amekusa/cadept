@@ -465,7 +465,7 @@ class Task extends Callable {
 				}
 				this._promise = Promise.all(promises).then(() => {
 					this.log(`All the dependencies have been ${c.green('resolved')}`);
-					return new Promise(resolver).catch(errHandler);
+					return new Promise(resolver, errHandler);
 				}, err => {
 					this._state = local.states.FAILED;
 					this.error(`${c.red('Dependency Error')}:`, `dep: ${c.yellow(err.dep)}, index: ${c.yellow(err.i)}`);
@@ -477,7 +477,7 @@ class Task extends Callable {
 					}, true);
 				});
 
-			} else this._promise = new Promise(resolver).catch(errHandler);
+			} else this._promise = new Promise(resolver, errHandler);
 		}
 		return this._promise;
 	}
