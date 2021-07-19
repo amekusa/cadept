@@ -120,6 +120,8 @@ class Task extends Callable {
 		this._state = local.states.IDLE;
 		this._console = local.options.defaultConsole.subcontext();
 		this._logLevel = local.logLevels.DEFAULT;
+		this._deps = [];
+		this._namedDeps = {};
 		flexParams(args, [
 			{ name:'string', fn:'function', deps:['array|object', []] },
 			{ name:'string', deps:'array|object' },
@@ -128,8 +130,7 @@ class Task extends Callable {
 		], r => {
 			this._name = r.name || '';
 			this._fn = r.fn || (resolve => resolve());
-			this._deps = [];
-			this.depend(...r.deps);
+			if (r.deps) this.depend(r.deps);
 		}, { throw: true });
 	}
 	/**
@@ -384,11 +385,21 @@ class Task extends Callable {
 	 * @throws an error if this task is not idle
 	 */
 	depend(...deps) {
-		if (!this.isIdle) throw new Error(`the task ${this.label} is not idle`);
+		if (!this.isIdle) throw new Exception(`the task ${this.label} is not idle`, { task: this, state: this.state });
 		for (let dep of deps) {
-			InvalidType.check(dep, Task, 'string', 'function', Promise);
-			this._deps.push(dep);
+			if (Array.isArray(dep)) this.depend(...dep); // RECURSE:
+			else if (dep instanceof Task) this._depend(dep, dep.displayName);
+			else if (dep instanceof Promise) this._depend(dep);
+			else if (typeof dep === 'object') {
+				for (let key in dep) this._depend(dep, key);
+			} else this._depend(dep);
 		}
+		return this;
+	}
+	_depend(dep, name = null) {
+		dep = dep instanceof TaskDependency ? dep : new TaskDependency(this, dep, name);
+		if (dep.name && dep.name in this._namedDeps) throw new Exception(`the dependency name '${dep.name}' already exists`);
+		this._deps.push(dep);
 		return this;
 	}
 	/**
