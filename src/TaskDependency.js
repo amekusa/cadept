@@ -1,6 +1,13 @@
 import Task from './Task.js';
 const { Exception, InvalidType } = require('generic-exceptions');
 
+const local = {
+	INITIAL: Symbol('INITIAL')
+};
+
+/**
+ * A dependency of a task
+ */
 class TaskDependency {
 	/**
 	 * @param {Task} depender
@@ -10,18 +17,20 @@ class TaskDependency {
 	constructor(depender, dependee, name = null) {
 		this._depender = InvalidType.check(depender, Task)
 		this._dependee = InvalidType.check(dependee, Task, Promise, 'function', 'string');
-		this._name = name || null;
+		if (name === null) {
+			if (dependee instanceof Task) this._name = dependee.displayName;
+			else if (typeof dependee === 'string') this._name = dependee;
+			else this._name = '';
+		} else this._name = String(name);
+		this._resol = local.INITIAL;
+		this._error = local.INITIAL;
 	}
 	/**
+	 * The name of this dependency
 	 * @type {string}
 	 * @readonly
 	 */
 	get name() {
-		if (this._name === null) {
-			if (this._dependee instanceof Task) this._name = this._dependee.displayName;
-			if (typeof this._dependee == 'string') this._name = this._dependee;
-			else this._name = '';
-		}
 		return this._name;
 	}
 	/**
