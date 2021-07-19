@@ -422,7 +422,6 @@ class Task extends Callable {
 	__call() {
 		if (!this._promise) {
 			this._state = local.states.BUSY;
-
 			let resolver = (resolve, reject) => {
 				this.log(`${c.yellow('Running')} ...`);
 				let _resolve = arg => {
@@ -449,21 +448,17 @@ class Task extends Callable {
 				let promises = [];
 				for (let i = 0; i < this._deps.length; i++) {
 					let dep = this._deps[i];
-					let promise = null;
-					if (dep instanceof Task) promise = dep();
-					else if (dep instanceof Promise) promise = dep;
-					else if (typeof dep == 'function') promise = new Promise(dep);
-					else if (typeof dep == 'string') {
-						if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
-						let task = this._manager.get(dep);
-						if (!task) throw new Exception(`no such task as '${dep}'`);
-						promise = task();
-					} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
-					promises.push(promise.catch(err => {
+					promises.push(dep.resolve().then(resol => {
+						if (dep.name) this._namedDeps[dep.name] = resol;
+						return resol;
+					}, err => {
 						throw { dep, i, err };
 					}));
 				}
-				this._promise = Promise.all(promises).catch(err => {
+				this._promise = Promise.all(promises).then(() => {
+					this.log(`All the dependencies have been ${c.green('resolved')}`);
+					return new Promise(resolver).catch(errHandler);
+				}, err => {
 					this._state = local.states.FAILED;
 					this.error(`${c.red('Dependency Error')}:`, `dep: ${c.yellow(err.dep)}, index: ${c.yellow(err.i)}`);
 					throw new TaskDepFailure(null, {
@@ -472,10 +467,6 @@ class Task extends Callable {
 						index: err.i,
 						thrown: err.err
 					}, true);
-
-				}).then(() => {
-					this.log(`All the dependencies have been ${c.green('resolved')}`);
-					return new Promise(resolver).catch(errHandler);
 				});
 
 			} else this._promise = new Promise(resolver).catch(errHandler);
