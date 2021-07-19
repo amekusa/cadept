@@ -194,7 +194,7 @@ class Task extends Callable {
 	 * @readonly
 	 */
 	get hasDep() {
-		return !!(this._deps && this._deps.length);
+		return this._deps.length > 0;
 	}
 	/**
 	 * The current state of this task
@@ -360,7 +360,7 @@ class Task extends Callable {
 	 * @return {Task} this object
 	 */
 	setLogLevel(level) {
-		this._logLevel = typeof level == 'string' ? local.logLevels[level.toUpperCase()] : level;
+		this._logLevel = typeof level === 'string' ? local.logLevels[level.toUpperCase()] : level;
 		return this;
 	}
 	/**
@@ -511,7 +511,7 @@ class Task extends Callable {
 			break;
 		case 'defaultLogLevel':
 			InvalidType.check(value, 'string', 'int');
-			if (typeof value == 'string') value = local.logLevels[value.toUpperCase()];
+			if (typeof value === 'string') value = local.logLevels[value.toUpperCase()];
 			break;
 		case 'colorSupport':
 			InvalidType.check(value, 'int');
@@ -543,7 +543,7 @@ class Task extends Callable {
 			defaultManager: TaskManager.global(),
 			defaultConsole: conso1e.global(),
 			defaultLogLevel: local.logLevels.WARN,
-			colorSupport: typeof window == 'undefined' ? 1 : 0
+			colorSupport: typeof window === 'undefined' ? 1 : 0
 		};
 		c.level = local.options.colorSupport;
 		return this;
