@@ -1,5 +1,6 @@
 import Callable from './Callable.js';
 import TaskManager from './TaskManager.js';
+import TaskDependency from './TaskDependency.js';
 import {
 	TaskException,
 	TaskJobFailure,
@@ -120,10 +121,10 @@ class Task extends Callable {
 		this._console = local.options.defaultConsole.subcontext();
 		this._logLevel = local.logLevels.DEFAULT;
 		flexParams(args, [
-			{ name:'string', fn:'function', deps:['array', []] },
-			{ name:'string', deps:'array' },
-			{ fn:'function', deps:['array', []] },
-			{ deps:'array' }
+			{ name:'string', fn:'function', deps:['array|object', []] },
+			{ name:'string', deps:'array|object' },
+			{ fn:'function', deps:['array|object', []] },
+			{ deps:'array|object' }
 		], r => {
 			this._name = r.name || '';
 			this._fn = r.fn || (resolve => resolve());
