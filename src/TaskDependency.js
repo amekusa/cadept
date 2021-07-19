@@ -81,8 +81,8 @@ class TaskDependency {
 		let r;
 		if (this._dependee instanceof Task) r = this._dependee();
 		else if (this._dependee instanceof Promise) r = this._dependee;
-		else if (typeof this._dependee == 'function') r = new Promise(this._dependee);
-		else if (typeof this._dependee == 'string') {
+		else if (typeof this._dependee === 'function') r = new Promise(this._dependee);
+		else if (typeof this._dependee === 'string') {
 			let manager = this._depender.manager;
 			if (!manager) throw new Exception(`the task ${this._depender.label} is not registered`);
 			let task = manager.get(this._dependee);
