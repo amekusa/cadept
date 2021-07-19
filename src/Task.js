@@ -333,6 +333,18 @@ class Task extends Callable {
 		this._manager = null;
 	}
 	/**
+	 * Finds and returns the resolution of a dependency.
+	 * @param {number|string} key Index or name of a dependency
+	 * @return {any} the resolution of the dependency
+	 */
+	dep(key) {
+		if (typeof key === 'number' && key < this._deps.length) return this._deps[key].resol;
+		for (let dep of this._deps) {
+			if (dep.name === key) return dep.resol;
+		}
+		throw new Exception(`no such dependency as '${key}'`);
+	}
+	/**
 	 * Sets a log threshold.
 	 * @param {integer|string} level Log level in an integer or a string form (recommended).
 	 * String form is case-insensitive.
