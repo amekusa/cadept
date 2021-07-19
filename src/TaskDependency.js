@@ -89,7 +89,13 @@ class TaskDependency {
 			if (!task) throw new Exception(`no such task as '${this._dependee}'`);
 			r = task();
 		} else throw new InvalidType.failed(this._dependee, Task, Promise, 'function', 'string');
-		return r;
+		return r.then(resol => {
+			this._resol = resol;
+			return resol;
+		}, err => {
+			this._error = err;
+			throw err;
+		});
 	}
 }
 
