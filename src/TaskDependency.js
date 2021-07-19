@@ -34,6 +34,47 @@ class TaskDependency {
 		return this._name;
 	}
 	/**
+	 * Whether this dependency has been resolved
+	 * @type {boolean}
+	 * @readonly
+	 */
+	get isResolved() {
+		return this._resol !== local.INITIAL;
+	}
+	/**
+	 * Whether this dependency has encountered an error while resolving itself
+	 * @type {boolean}
+	 * @readonly
+	 */
+	get hasError() {
+		return this._error !== local.INITIAL;
+	}
+	/**
+	 * The resolution of the dependency
+	 * @type {any}
+	 * @readonly
+	 */
+	get resol() {
+		if (this.hasError) throw new Exception(`${this.expr} has an error`);
+		if (!this.isResolved) throw new Exception(`${this.expr} is not resolved`);
+		return this._resol;
+	}
+	/**
+	 * The error that this dependency encountered while resolving itself
+	 * @type {any}
+	 * @readonly
+	 */
+	get error() {
+		return this.hasError ? this._error : null;
+	}
+	/**
+	 * @ignore
+	 */
+	get expr() {
+		return this.name ? `the dependency '${this.name}'` : `an anonymous dependency`;
+	}
+	/**
+	 * Tries to resolve the dependency and returns a `Promise` object
 	 * @return {Promise}
 	 */
 	resolve() {
