@@ -100,6 +100,7 @@ const c = require('chalk');
 const { log, logger } = setupLogger();
 const Task = require('./bundle');
 const TaskManager = Task.Manager;
+const TaskDependency = Task.Dependency;
 
 function setup() {
 	let t = new Task(`test`, r => { r(`done.`) });
@@ -116,6 +117,24 @@ beforeEach(() => {
 		defaultConsole: logger,
 		colorSupport: 0,
 		defaultLogLevel: 3
+	});
+});
+
+describe(`TaskDependency`, () => {
+	describe(`members`, () => {
+		let task = new Task(`TASK`, r => { r(`DONE`) });
+		let a = new TaskDependency(task, Promise.resolve(`RESOL:A`)); a.resolve();
+		let b = new TaskDependency(task, Promise.reject(`ERROR:B`)); b.resolve();
+		let c = new TaskDependency(task, Promise.resolve(`RESOL:C`), `CHRIS`); c.resolve();
+		let d = new TaskDependency(task, new Task(`TASK:D`, r => { r(`DONE`) })); d.resolve();
+		compareMembers({ a, b, c, d }, {
+			name: { a:'', b:'', c:`CHRIS`, d:`TASK:D` },
+			isResolved: { a:true, b:false },
+			hasError: { a:false, b:true },
+			resol: { a:`RESOL:A`, c:`RESOL:C` },
+			error: { a:null, b:`ERROR:B` },
+			expr: { a:`an anonymous dependency`, c:`the dependency 'CHRIS'`, d:`the dependency 'TASK:D'` }
+		});
 	});
 });
 
