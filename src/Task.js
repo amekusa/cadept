@@ -142,6 +142,14 @@ class Task extends Callable {
 		return TaskManager;
 	}
 	/**
+	 * {@link TaskDependency} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get Dependency() {
+		return TaskDependency;
+	}
+	/**
 	 * {@link TaskException} class
 	 * @type {class}
 	 * @readonly
