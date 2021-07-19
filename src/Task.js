@@ -33,11 +33,11 @@ const local = {
 /**
  * A task dependency.
  * If it is a string, that means it is a task name.
- * @typedef {Task|Promise|string} Dependency
+ * @typedef {Task|Promise|string} Dependee
  */
 /**
  * A task dependency can also be a function.
- * @callback Dependency
+ * @callback Dependee
  * @param {function} resolve Call this inside the function to signal that it is resolved
  * @param {function} reject Call this inside the function on errors
  */
@@ -110,7 +110,7 @@ class Task extends Callable {
 	/**
 	 * @param {string} [name] Task name
 	 * @param {function} [fn] Task job
-	 * @param {Dependency[]} [deps] Task dependencies
+	 * @param {Dependee[]} [deps] Task dependencies
 	 */
 	constructor(...args) {
 		super();
@@ -392,7 +392,7 @@ class Task extends Callable {
 	}
 	/**
 	 * Adds one or more dependencies.
-	 * @param {...Dependency} deps One or more dependencies to add.
+	 * @param {...Dependee} deps One or more dependencies to add.
 	 * @return {Task} this object
 	 * @throws an error if this task is not idle
 	 */
