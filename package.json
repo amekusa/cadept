@@ -15,7 +15,7 @@
     "prepublishOnly": "npm run clean && npm run test && npm run build",
     "setup": "node setup.js",
     "watch": "npm-watch",
-    "test": "nyc mocha",
+    "test": "nyc mocha --require source-map-support/register",
     "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "build": "rollup src/Task.js --file bundle.js --sourcemap --format umd --name cadept",
     "clean": "find . -name '.DS_Store' -not -path '*/node_modules/*' | xargs rm -r",
@@ -40,6 +40,9 @@
       },
       "mocha": {
         "version": "^8.2.1"
+      },
+      "source-map-support": {
+        "version": "^0.5.19"
       }
     }
   },
@@ -83,6 +86,7 @@
     "generic-exceptions": "^3.0.2"
   },
   "devDependencies": {
-    "docolatte": "^2.10.2"
+    "docolatte": "^2.10.2",
+    "source-map-support": "^0.5.19"
   }
 }
