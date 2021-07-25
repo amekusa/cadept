@@ -87,6 +87,7 @@
   },
   "devDependencies": {
     "docolatte": "^2.10.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "sourcemap-validator": "^2.1.0"
   }
 }
