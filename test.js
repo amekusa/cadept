@@ -309,6 +309,17 @@ describe(`Task`, () => {
 				done();
 			}).catch(done);
 		});
+		it(`named deps`, done => {
+			let t = new Task(`TASK`);
+			t.depend({
+				depA: Promise.resolve(`RESOL:A`),
+				depB: Promise.resolve(`RESOL:B`)
+			}).run().then(() => {
+				assert.equal(t.dep(0), t.dep('depA'), `RESOL:A`);
+				assert.equal(t.dep(1), t.dep('depB'), `RESOL:B`);
+				done();
+			}).catch(done);
+		});
 	});
 	describe(`options`, () => {
 		it(`colorSupport`, () => {
