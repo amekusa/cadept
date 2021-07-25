@@ -411,7 +411,7 @@ class Task extends Callable {
 			else if (dep instanceof Task) this._depend(dep, dep.displayName);
 			else if (dep instanceof Promise) this._depend(dep);
 			else if (typeof dep === 'object') {
-				for (let key in dep) this._depend(dep, key);
+				for (let key in dep) this._depend(dep[key], key);
 			} else this._depend(dep);
 		}
 		return this;
