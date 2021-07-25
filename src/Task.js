@@ -423,6 +423,13 @@ class Task extends Callable {
 		return this;
 	}
 	/**
+	 * @alias
+	 * @return {Promise}
+	 */
+	run() {
+		return this.__call();
+	}
+	/**
 	 * @override
 	 * @ignore
 	 * @return {Promise}
