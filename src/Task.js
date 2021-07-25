@@ -123,7 +123,7 @@ class Task extends Callable {
 		this._deps = [];
 		this._namedDeps = {};
 		flexParams(args, [
-			{ name:'string', fn:'function', deps:['array|object', []] },
+			{ name:'string', fn:['function', null], deps:['array|object', []] },
 			{ name:'string', deps:'array|object' },
 			{ fn:'function', deps:['array|object', []] },
 			{ deps:'array|object' }
