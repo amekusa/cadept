@@ -423,13 +423,6 @@ class Task extends Callable {
 		return this;
 	}
 	/**
-	 * @alias
-	 * @return {Promise}
-	 */
-	run() {
-		return this.__call();
-	}
-	/**
 	 * @override
 	 * @ignore
 	 * @return {Promise}
@@ -555,6 +548,14 @@ class Task extends Callable {
 		return this;
 	}
 }
+
+/**
+ * Calls this task as a function.
+ * That means `task.run()` is same as `task()`
+ * @function Task#run
+ * @return {Promise}
+ */
+Task.prototype.run = Task.prototype.__call;
 
 Task.reset();
 export default Task;
