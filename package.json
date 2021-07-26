@@ -80,9 +80,9 @@
   "author": "amekusa (https://amekusa.com)",
   "license": "ISC",
   "dependencies": {
-    "chalk": "^4.1.0",
+    "chalk": "^4.1.1",
     "conso1e": "^1.2.2",
-    "flex-params": "^3.0.1",
+    "flex-params": "^3.2.1",
     "generic-exceptions": "^3.0.2"
   },
   "devDependencies": {
