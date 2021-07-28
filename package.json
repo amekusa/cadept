@@ -26,24 +26,12 @@
   },
   "_setup": {
     "deps": {
-      "nyc": {
-        "version": "^15.1.0"
-      },
-      "npm-watch": {
-        "version": "^0.10.0"
-      },
-      "codecov": {
-        "version": "^3.8.3"
-      },
-      "rollup": {
-        "version": "^2.54.0"
-      },
-      "mocha": {
-        "version": "^9.0.3"
-      },
-      "source-map-support": {
-        "version": "^0.5.19"
-      }
+      "npm-watch": "^0.10.0",
+      "rollup": "^2.54.0",
+      "sourcemap-validator": "^2.1.0",
+      "c8": "^7.7.3",
+      "codecov": "^3.8.3",
+      "mocha": "^9.0.3"
     }
   },
   "watch": {
@@ -86,8 +74,6 @@
     "generic-exceptions": "^3.0.2"
   },
   "devDependencies": {
-    "docolatte": "^2.10.2",
-    "source-map-support": "^0.5.19",
-    "sourcemap-validator": "^2.1.0"
+    "docolatte": "^2.10.2"
   }
 }
