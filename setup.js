@@ -1,7 +1,8 @@
 /*!
  * Setup script for development
  * @author amekusa (https://amekusa.com)
- * @version 1.1.0
+ * @version 1.2.0
+ * @update 2021-07-28
  */
 
 const process = require('process');
@@ -64,6 +65,7 @@ async function resolveDeps(deps) {
 	let installs = [];
 	for (let i in deps) {
 		let I = deps[i];
+		if (typeof I == 'string') I = { version: I }; // support one-liner
 		if (!I.version) {
 			console.warn(`The dependency '${i}' is skipped due to a lack of 'version' info.`);
 			continue;
