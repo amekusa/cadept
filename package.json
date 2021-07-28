@@ -15,7 +15,7 @@
     "prepublishOnly": "npm run clean && npm run build && npm run test",
     "setup": "node setup.js",
     "watch": "npm-watch",
-    "test": "nyc mocha --require source-map-support/register",
+    "test": "c8 mocha --enable-source-maps",
     "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "build": "rollup -c",
     "clean": "rm -f bundle.js bundle.js.map && find . -name '.DS_Store' -not -path '*/node_modules/*' | xargs rm -r",
