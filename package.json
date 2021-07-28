@@ -30,16 +30,16 @@
         "version": "^15.1.0"
       },
       "npm-watch": {
-        "version": "^0.7.0"
+        "version": "^0.10.0"
       },
       "codecov": {
-        "version": "^3.8.1"
+        "version": "^3.8.3"
       },
       "rollup": {
-        "version": "^2.34.0"
+        "version": "^2.54.0"
       },
       "mocha": {
-        "version": "^8.2.1"
+        "version": "^9.0.3"
       },
       "source-map-support": {
         "version": "^0.5.19"
