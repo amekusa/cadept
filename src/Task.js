@@ -1,5 +1,6 @@
 import Callable from './Callable.js';
 import TaskManager from './TaskManager.js';
+import TaskDependency from './TaskDependency.js';
 import {
 	TaskException,
 	TaskJobFailure,
@@ -32,11 +33,11 @@ const local = {
 /**
  * A task dependency.
  * If it is a string, that means it is a task name.
- * @typedef {Task|Promise|string} Dependency
+ * @typedef {Task|Promise|string} Dependee
  */
 /**
  * A task dependency can also be a function.
- * @callback Dependency
+ * @callback Dependee
  * @param {function} resolve Call this inside the function to signal that it is resolved
  * @param {function} reject Call this inside the function on errors
  */
@@ -59,8 +60,8 @@ const local = {
  * });
  *
  * task() // runs asnychronously, and returns a promise
- * .then(resolved => { // runs after 3 seconds
- *   console.log(resolved); // "task done."
+ * .then(resol => { // runs after 3 seconds
+ *   console.log(resol); // "task done."
  * });
  *
  * @example <caption>Task dependencies</caption>
@@ -109,26 +110,27 @@ class Task extends Callable {
 	/**
 	 * @param {string} [name] Task name
 	 * @param {function} [fn] Task job
-	 * @param {Dependency[]} [deps] Task dependencies
+	 * @param {Dependee[]} [deps] Task dependencies
 	 */
 	constructor(...args) {
 		super();
 		this._manager = null;
-		this._resolved = null;
+		this._resol = null;
 		this._promise = null;
 		this._state = local.states.IDLE;
 		this._console = local.options.defaultConsole.subcontext();
 		this._logLevel = local.logLevels.DEFAULT;
+		this._deps = [];
+		this._namedDeps = {};
 		flexParams(args, [
-			{ name:'string', fn:'function', deps:['array', []] },
-			{ name:'string', deps:'array' },
-			{ fn:'function', deps:['array', []] },
-			{ deps:'array' }
+			{ name:'string', fn:['function', null], deps:['array|object', []] },
+			{ name:'string', deps:'array|object' },
+			{ fn:'function', deps:['array|object', []] },
+			{ deps:'array|object' }
 		], r => {
 			this._name = r.name || '';
 			this._fn = r.fn || (resolve => resolve());
-			this._deps = [];
-			this.depend(...r.deps);
+			if (r.deps) this.depend(r.deps);
 		}, { throw: true });
 	}
 	/**
@@ -138,6 +140,14 @@ class Task extends Callable {
 	 */
 	static get Manager() {
 		return TaskManager;
+	}
+	/**
+	 * {@link TaskDependency} class
+	 * @type {class}
+	 * @readonly
+	 */
+	static get Dependency() {
+		return TaskDependency;
 	}
 	/**
 	 * {@link TaskException} class
@@ -192,7 +202,7 @@ class Task extends Callable {
 	 * @readonly
 	 */
 	get hasDep() {
-		return !!(this._deps && this._deps.length);
+		return this._deps.length > 0;
 	}
 	/**
 	 * The current state of this task
@@ -254,16 +264,16 @@ class Task extends Callable {
 		return !!this._manager;
 	}
 	/**
-	 * The resolved value
+	 * The resolution value
 	 * @type {any}
 	 * @readonly
 	 */
-	get resolved() {
+	get resol() {
 		if (!this.isDone) {
 			this.warn(`Not resolved yet`);
 			return null;
 		}
-		return this._resolved;
+		return this._resol;
 	}
 	/**
 	 * The console object to ouput the logs
@@ -301,7 +311,7 @@ class Task extends Callable {
 			isRegistered: this.isRegistered,
 			hasDep: this.hasDep
 		};
-		if (this.isDone) r.resolved = this._resolved;
+		if (this.isDone) r.resol = this._resol;
 		return r;
 	}
 	/**
@@ -331,6 +341,18 @@ class Task extends Callable {
 		this._manager = null;
 	}
 	/**
+	 * Finds and returns the resolution of a dependency.
+	 * @param {number|string} key Index or name of a dependency
+	 * @return {any} the resolution of the dependency
+	 */
+	dep(key) {
+		if (typeof key === 'number' && key < this._deps.length) return this._deps[key].resol;
+		for (let dep of this._deps) {
+			if (dep.name === key) return dep.resol;
+		}
+		throw new Exception(`no such dependency as '${key}'`);
+	}
+	/**
 	 * Sets a log threshold.
 	 * @param {integer|string} level Log level in an integer or a string form (recommended).
 	 * String form is case-insensitive.
@@ -346,7 +368,7 @@ class Task extends Callable {
 	 * @return {Task} this object
 	 */
 	setLogLevel(level) {
-		this._logLevel = typeof level == 'string' ? local.logLevels[level.toUpperCase()] : level;
+		this._logLevel = typeof level === 'string' ? local.logLevels[level.toUpperCase()] : level;
 		return this;
 	}
 	/**
@@ -378,16 +400,26 @@ class Task extends Callable {
 	}
 	/**
 	 * Adds one or more dependencies.
-	 * @param {...Dependency} deps One or more dependencies to add.
+	 * @param {...Dependee} deps One or more dependencies to add.
 	 * @return {Task} this object
 	 * @throws an error if this task is not idle
 	 */
 	depend(...deps) {
-		if (!this.isIdle) throw new Error(`the task ${this.label} is not idle`);
+		if (!this.isIdle) throw new Exception(`the task ${this.label} is not idle`, { task: this, state: this.state });
 		for (let dep of deps) {
-			InvalidType.check(dep, Task, 'string', 'function', Promise);
-			this._deps.push(dep);
+			if (Array.isArray(dep)) this.depend(...dep); // RECURSE:
+			else if (dep instanceof Task) this._depend(dep, dep.displayName);
+			else if (dep instanceof Promise) this._depend(dep);
+			else if (typeof dep === 'object') {
+				for (let key in dep) this._depend(dep[key], key);
+			} else this._depend(dep);
 		}
+		return this;
+	}
+	_depend(dep, name = null) {
+		dep = dep instanceof TaskDependency ? dep : new TaskDependency(this, dep, name);
+		if (dep.name && dep.name in this._namedDeps) throw new Exception(`the dependency name '${dep.name}' already exists`);
+		this._deps.push(dep);
 		return this;
 	}
 	/**
@@ -398,12 +430,11 @@ class Task extends Callable {
 	__call() {
 		if (!this._promise) {
 			this._state = local.states.BUSY;
-
 			let resolver = (resolve, reject) => {
 				this.log(`${c.yellow('Running')} ...`);
 				let _resolve = arg => {
 					this._state = local.states.DONE;
-					this._resolved = arg;
+					this._resol = arg;
 					this.log(`${c.green('Resolved')}`);
 					return resolve(arg);
 				};
@@ -425,21 +456,17 @@ class Task extends Callable {
 				let promises = [];
 				for (let i = 0; i < this._deps.length; i++) {
 					let dep = this._deps[i];
-					let promise = null;
-					if (dep instanceof Task) promise = dep();
-					else if (dep instanceof Promise) promise = dep;
-					else if (typeof dep == 'function') promise = new Promise(dep);
-					else if (typeof dep == 'string') {
-						if (!this._manager) throw new Exception(`the task ${this.label} is not registered`);
-						let task = this._manager.get(dep);
-						if (!task) throw new Exception(`no such task as '${dep}'`);
-						promise = task();
-					} else throw new InvalidType.failed(dep, Task, Promise, 'function', 'string');
-					promises.push(promise.catch(err => {
+					promises.push(dep.resolve().then(resol => {
+						if (dep.name) this._namedDeps[dep.name] = resol;
+						return resol;
+					}, err => {
 						throw { dep, i, err };
 					}));
 				}
-				this._promise = Promise.all(promises).catch(err => {
+				this._promise = Promise.all(promises).then(() => {
+					this.log(`All the dependencies have been ${c.green('resolved')}`);
+					return new Promise(resolver).catch(errHandler);
+				}, err => {
 					this._state = local.states.FAILED;
 					this.error(`${c.red('Dependency Error')}:`, `dep: ${c.yellow(err.dep)}, index: ${c.yellow(err.i)}`);
 					throw new TaskDepFailure(null, {
@@ -448,10 +475,6 @@ class Task extends Callable {
 						index: err.i,
 						thrown: err.err
 					}, true);
-
-				}).then(() => {
-					this.log(`All the dependencies have been ${c.green('resolved')}`);
-					return new Promise(resolver).catch(errHandler);
 				});
 
 			} else this._promise = new Promise(resolver).catch(errHandler);
@@ -487,7 +510,7 @@ class Task extends Callable {
 			break;
 		case 'defaultLogLevel':
 			InvalidType.check(value, 'string', 'int');
-			if (typeof value == 'string') value = local.logLevels[value.toUpperCase()];
+			if (typeof value === 'string') value = local.logLevels[value.toUpperCase()];
 			break;
 		case 'colorSupport':
 			InvalidType.check(value, 'int');
@@ -519,12 +542,20 @@ class Task extends Callable {
 			defaultManager: TaskManager.global(),
 			defaultConsole: conso1e.global(),
 			defaultLogLevel: local.logLevels.WARN,
-			colorSupport: typeof window == 'undefined' ? 1 : 0
+			colorSupport: typeof window === 'undefined' ? 1 : 0
 		};
 		c.level = local.options.colorSupport;
 		return this;
 	}
 }
+
+/**
+ * Calls this task as a function.
+ * That means `task.run()` is same as `task()`
+ * @function Task#run
+ * @return {Promise}
+ */
+Task.prototype.run = Task.prototype.__call;
 
 Task.reset();
 export default Task;

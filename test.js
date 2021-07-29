@@ -100,6 +100,7 @@ const c = require('chalk');
 const { log, logger } = setupLogger();
 const Task = require('./bundle');
 const TaskManager = Task.Manager;
+const TaskDependency = Task.Dependency;
 
 function setup() {
 	let t = new Task(`test`, r => { r(`done.`) });
@@ -116,6 +117,24 @@ beforeEach(() => {
 		defaultConsole: logger,
 		colorSupport: 0,
 		defaultLogLevel: 3
+	});
+});
+
+describe(`TaskDependency`, () => {
+	describe(`members`, () => {
+		let task = new Task(`TASK`, r => { r(`DONE`) });
+		let a = new TaskDependency(task, Promise.resolve(`RESOL:A`)); a.resolve();
+		let b = new TaskDependency(task, Promise.reject(`ERROR:B`)); b.resolve();
+		let c = new TaskDependency(task, Promise.resolve(`RESOL:C`), `CHRIS`); c.resolve();
+		let d = new TaskDependency(task, new Task(`TASK:D`, r => { r(`DONE`) })); d.resolve();
+		compareMembers({ a, b, c, d }, {
+			name: { a:'', b:'', c:`CHRIS`, d:`TASK:D` },
+			isResolved: { a:true, b:false },
+			hasError: { a:false, b:true },
+			resol: { a:`RESOL:A`, c:`RESOL:C` },
+			error: { a:null, b:`ERROR:B` },
+			expr: { a:`an anonymous dependency`, c:`the dependency 'CHRIS'`, d:`the dependency 'TASK:D'` }
+		});
 	});
 });
 
@@ -151,13 +170,13 @@ describe(`Task`, () => {
 		});
 		it(`__call`, done => {
 			let t = new Task('test', resolve => {
-				setTimeout(resolve, 1000, 'RESOLVED');
+				setTimeout(resolve, 1000, 'RESOLUTION');
 			});
 			assert.equal(t.isBusy, false);
 			let p = t();
 			assert.ok(t.isBusy);
 			p.then(r => {
-				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.equal(r, t.resol, 'RESOLUTION');
 				assert.ok(t.isDone);
 				assert.equal(t.isIdle, t.isBusy, t.isFailed, false);
 				done();
@@ -200,10 +219,10 @@ describe(`Task`, () => {
 		});
 		it(`__call :: no params`, done => {
 			let t = new Task('test', () => {
-				return 'RESOLVED';
+				return 'RESOLUTION';
 			});
 			t().then(r => {
-				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.equal(r, t.resol, 'RESOLUTION');
 				assert.ok(t.isDone);
 				done();
 			}).catch(done);
@@ -245,14 +264,14 @@ describe(`Task`, () => {
 			let { t, t2, t3 } = setup();
 			t.depend(t2, t3);
 			assert.ok(t.hasDep);
-			t().then(resolved => {
+			t().then(resol => {
 				assert.ok(t.isDone);
 				assert.ok(t2.isDone);
 				assert.ok(t3.isDone);
-				assert.equal(t.resolved, resolved);
-				assert.equal(t.resolved, `done.`);
-				assert.equal(t2.resolved, `test2:done.`);
-				assert.equal(t3.resolved, `test3:done.`);
+				assert.equal(t.resol, resol);
+				assert.equal(t.resol, `done.`);
+				assert.equal(t2.resol, `test2:done.`);
+				assert.equal(t3.resol, `test3:done.`);
 				done();
 			}).catch(done);
 		});
@@ -262,14 +281,25 @@ describe(`Task`, () => {
 			t.register();
 			t2.register();
 			t3.register();
-			t().then(resolved => {
+			t().then(resol => {
 				assert.ok(t.isDone);
 				assert.ok(t2.isDone);
 				assert.ok(t3.isDone);
-				assert.equal(t.resolved, resolved);
-				assert.equal(t.resolved, `done.`);
-				assert.equal(t2.resolved, `test2:done.`);
-				assert.equal(t3.resolved, `test3:done.`);
+				assert.equal(t.resol, resol);
+				assert.equal(t.resol, `done.`);
+				assert.equal(t2.resol, `test2:done.`);
+				assert.equal(t3.resol, `test3:done.`);
+				done();
+			}).catch(done);
+		});
+		it(`named deps`, done => {
+			let t = new Task(`TASK`);
+			t.depend({
+				depA: Promise.resolve(`RESOL:A`),
+				depB: Promise.resolve(`RESOL:B`)
+			}).run().then(() => {
+				assert.equal(t.dep(0), t.dep('depA'), `RESOL:A`);
+				assert.equal(t.dep(1), t.dep('depB'), `RESOL:B`);
 				done();
 			}).catch(done);
 		});
