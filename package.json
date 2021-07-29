@@ -16,7 +16,7 @@
     "setup": "node setup.js",
     "watch": "npm-watch",
     "test": "c8 mocha --enable-source-maps",
-    "codecov": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "codecov": "c8 report --reporter=text-lcov > coverage.lcov && codecov",
     "build": "rollup -c",
     "clean": "rm -f bundle.js bundle.js.map && find . -name '.DS_Store' -not -path '*/node_modules/*' | xargs rm -r",
     "docs": "npm run docs:gen && npm run docs:publish",
