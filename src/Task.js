@@ -60,8 +60,8 @@ const local = {
  * });
  *
  * task() // runs asnychronously, and returns a promise
- * .then(resolved => { // runs after 3 seconds
- *   console.log(resolved); // "task done."
+ * .then(resol => { // runs after 3 seconds
+ *   console.log(resol); // "task done."
  * });
  *
  * @example <caption>Task dependencies</caption>
@@ -115,7 +115,7 @@ class Task extends Callable {
 	constructor(...args) {
 		super();
 		this._manager = null;
-		this._resolved = null;
+		this._resol = null;
 		this._promise = null;
 		this._state = local.states.IDLE;
 		this._console = local.options.defaultConsole.subcontext();
@@ -264,16 +264,16 @@ class Task extends Callable {
 		return !!this._manager;
 	}
 	/**
-	 * The resolved value
+	 * The resolution value
 	 * @type {any}
 	 * @readonly
 	 */
-	get resolved() {
+	get resol() {
 		if (!this.isDone) {
 			this.warn(`Not resolved yet`);
 			return null;
 		}
-		return this._resolved;
+		return this._resol;
 	}
 	/**
 	 * The console object to ouput the logs
@@ -311,7 +311,7 @@ class Task extends Callable {
 			isRegistered: this.isRegistered,
 			hasDep: this.hasDep
 		};
-		if (this.isDone) r.resolved = this._resolved;
+		if (this.isDone) r.resol = this._resol;
 		return r;
 	}
 	/**
@@ -434,7 +434,7 @@ class Task extends Callable {
 				this.log(`${c.yellow('Running')} ...`);
 				let _resolve = arg => {
 					this._state = local.states.DONE;
-					this._resolved = arg;
+					this._resol = arg;
 					this.log(`${c.green('Resolved')}`);
 					return resolve(arg);
 				};
