@@ -94,7 +94,6 @@ function assertMethods(obj, methods) {
 	}
 }
 
-
 /* Tests */
 
 const c = require('chalk');
