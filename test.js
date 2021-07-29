@@ -1,7 +1,5 @@
 const assert = require('assert');
-const fs = require('fs');
 const { Exception, InvalidType } = require('generic-exceptions');
-const smValidate = require('sourcemap-validator');
 
 /* Utils */
 
@@ -95,20 +93,6 @@ function assertMethods(obj, methods) {
 		}
 	}
 }
-
-
-/* Validate Sourcemap */
-
-(() => {
-	let bundle = fs.readFileSync('./bundle.js', 'utf-8');
-	let map = fs.readFileSync('./bundle.js.map', 'utf-8');
-	try {
-		smValidate(bundle, map);
-	} catch (e) {
-		console.error(`ERROR:`, `the sourcemap is not valid`);
-		throw e;
-	}
-})();
 
 
 /* Tests */
