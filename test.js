@@ -187,13 +187,13 @@ describe(`Task`, () => {
 		});
 		it(`__call`, done => {
 			let t = new Task('test', resolve => {
-				setTimeout(resolve, 1000, 'RESOLVED');
+				setTimeout(resolve, 1000, 'RESOLUTION');
 			});
 			assert.equal(t.isBusy, false);
 			let p = t();
 			assert.ok(t.isBusy);
 			p.then(r => {
-				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.equal(r, t.resol, 'RESOLUTION');
 				assert.ok(t.isDone);
 				assert.equal(t.isIdle, t.isBusy, t.isFailed, false);
 				done();
@@ -236,10 +236,10 @@ describe(`Task`, () => {
 		});
 		it(`__call :: no params`, done => {
 			let t = new Task('test', () => {
-				return 'RESOLVED';
+				return 'RESOLUTION';
 			});
 			t().then(r => {
-				assert.equal(r, t.resolved, 'RESOLVED');
+				assert.equal(r, t.resol, 'RESOLUTION');
 				assert.ok(t.isDone);
 				done();
 			}).catch(done);
@@ -281,14 +281,14 @@ describe(`Task`, () => {
 			let { t, t2, t3 } = setup();
 			t.depend(t2, t3);
 			assert.ok(t.hasDep);
-			t().then(resolved => {
+			t().then(resol => {
 				assert.ok(t.isDone);
 				assert.ok(t2.isDone);
 				assert.ok(t3.isDone);
-				assert.equal(t.resolved, resolved);
-				assert.equal(t.resolved, `done.`);
-				assert.equal(t2.resolved, `test2:done.`);
-				assert.equal(t3.resolved, `test3:done.`);
+				assert.equal(t.resol, resol);
+				assert.equal(t.resol, `done.`);
+				assert.equal(t2.resol, `test2:done.`);
+				assert.equal(t3.resol, `test3:done.`);
 				done();
 			}).catch(done);
 		});
@@ -298,14 +298,14 @@ describe(`Task`, () => {
 			t.register();
 			t2.register();
 			t3.register();
-			t().then(resolved => {
+			t().then(resol => {
 				assert.ok(t.isDone);
 				assert.ok(t2.isDone);
 				assert.ok(t3.isDone);
-				assert.equal(t.resolved, resolved);
-				assert.equal(t.resolved, `done.`);
-				assert.equal(t2.resolved, `test2:done.`);
-				assert.equal(t3.resolved, `test3:done.`);
+				assert.equal(t.resol, resol);
+				assert.equal(t.resol, `done.`);
+				assert.equal(t2.resol, `test2:done.`);
+				assert.equal(t3.resol, `test3:done.`);
 				done();
 			}).catch(done);
 		});
