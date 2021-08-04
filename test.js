@@ -292,7 +292,7 @@ describe(`Task`, () => {
 				done();
 			}).catch(done);
 		});
-		it(`named deps`, done => {
+		it(`dep`, done => {
 			let t = new Task(`TASK`);
 			t.depend({
 				depA: Promise.resolve(`RESOL:A`),
