@@ -346,7 +346,11 @@ class Task extends Callable {
 	 * @return {any} the resolution of the dependency
 	 */
 	dep(key) {
-		if (typeof key === 'number' && key < this._deps.length) return this._deps[key].resol;
+		if (typeof key === 'number') {
+			if (key >= this._deps.length) throw new Exception(`the dependency index is out of range`, { index: key, max: this._deps.length - 1 });
+			return this._deps[key].resol;
+		}
+		if (key in this._namedDeps) return this._namedDeps[key];
 		for (let dep of this._deps) {
 			if (dep.name === key) return dep.resol;
 		}
