@@ -120,6 +120,17 @@ beforeEach(() => {
 	});
 });
 
+describe(`TaskManager`, () => {
+	describe(`methods`, () => {
+		it(`newTask`, () => {
+			let tm = new TaskManager();
+			tm.newTask('test', resolve => resolve('DONE.'));
+			assert.ok(tm.get('test') instanceof Task);
+			assert.equal(tm.get('test').displayName, 'test');
+		});
+	});
+});
+
 describe(`TaskDependency`, () => {
 	describe(`members`, () => {
 		let task = new Task(`TASK`, r => { r(`DONE`) });
