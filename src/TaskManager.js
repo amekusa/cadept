@@ -34,14 +34,13 @@ class TaskManager {
 	 * @return {Task} the created task
 	 */
 	newTask(...args) {
-		return flexParams(args, [
-			{ name:'string', fn:'function', deps:['array', []] },
-			{ name:'string', deps:'array' }
-		], () => {
-			let task = new Task(...args);
-			this._add(task);
-			return task;
-		}, { throw: true });
+		flexParams(args, [
+			{ name:'string', fn:'function', deps:['array|object', []] },
+			{ name:'string', deps:'array|object' }
+		], null, { throw: true });
+		let task = new Task(...args);
+		this._add(task);
+		return task;
 	}
 	/**
 	 * Registers a task for this manager.
