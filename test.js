@@ -228,6 +228,13 @@ describe(`Task`, () => {
 			});
 			t().then(done).catch(done);
 		});
+		it(`__call :: 3rd param is the task itself`, done => {
+			let t = new Task('test', (resolve, reject, self) => {
+				assert.strictEqual(t, self);
+				resolve();
+			});
+			t().then(done).catch(done);
+		});
 		it(`__call :: no params`, done => {
 			let t = new Task('test', () => {
 				return 'RESOLUTION';

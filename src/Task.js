@@ -443,7 +443,7 @@ class Task extends Callable {
 					return resolve(arg);
 				};
 				return this._fn.length ?
-					this._fn(_resolve, reject) :
+					this._fn(_resolve, reject, this) :
 					_resolve(this._fn());
 			};
 			let errHandler = err => {
