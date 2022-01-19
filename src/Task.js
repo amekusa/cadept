@@ -1,3 +1,6 @@
+// TODO: Move .options() to TaskManager
+// TODO: Error logs are too extensive to read. Make them short and readable
+
 import Callable from './Callable.js';
 import TaskManager from './TaskManager.js';
 import TaskDependency from './TaskDependency.js';
